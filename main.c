@@ -4,9 +4,21 @@
 #include <curl/curl.h>
 #include "window.h"
 
+#include "mysql.h"
+
+    void selectMysql();
+    void finish_with_error(MYSQL *con)
+    {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
     int
     main(int argc, char *argv [])
     {
+        printf("\n\nDébut du programme, ayoooooo !\n\n");
+        selectMysql();
         GtkWidget *fenetre_principale = NULL;
         GtkBuilder *builder = NULL;
         GError *error = NULL;
@@ -45,5 +57,61 @@
 
         gtk_main();
 
+        printf("\n\nFin du programme ;) Byeeeeeee \n\n");
         return 0;
     }
+
+void selectMysql() {
+    MYSQL *con = mysql_init(NULL);
+
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    /*if (mysql_query(con, "CREATE DATABASE testdb")) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }*/
+
+    if (mysql_query(con, "SELECT * FROM Product"))
+    {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL)
+    {
+        finish_with_error(con);
+    }
+
+    int num_fields = mysql_num_fields(result);
+
+    MYSQL_ROW row;
+
+    while ((row = mysql_fetch_row(result)))
+    {
+        for(int i = 0; i < num_fields; i++)
+        {
+            printf("%s ", row[i] ? row[i] : "NULL");
+        }
+
+        printf("\n");
+    }
+
+    mysql_free_result(result);
+
+    printf("MySQL client version: %s\n", mysql_get_client_info());
+
+
+    mysql_close(con);
+}
