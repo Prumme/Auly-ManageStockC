@@ -11,7 +11,7 @@ include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 add_definitions(${GTK3_CFLAGS_OTHER})
 message(STATUS "GTK include dirs: " ${GTK3_INCLUDE_DIRS})
-message(STATUS "GTK library dirs: " ${GTK3_LIBRARY_DIRS})
+message(STATUS "GTK library dirs: " ${GTK3_LIBRARIES})
 message(STATUS "GTK clflags: " ${GTK3_CFLAGS_OTHER})
 message(STATUS "")
 
@@ -20,7 +20,7 @@ message(STATUS "")
 pkg_check_modules(CURL libcurl REQUIRED)
 include_directories(SYSTEM ${CURL_INCLUDE_DIRS})
 message(STATUS "CURL include dirs: " ${CURL_INCLUDE_DIRS})
-message(STATUS "CURL library dirs: " ${CURL_LIBRARY_DIRS})
+message(STATUS "CURL library dirs: " ${CURL_LIBRARIES})
 message(STATUS "CURL clflags: " ${CURL_CFLAGS_OTHER})
 message(STATUS "")
 
@@ -35,4 +35,4 @@ message(STATUS "")
 
 add_executable(Projet main.c)
 
-target_link_libraries(Projet ${GTK3_LIBRARIES} /usr/lib/x86_64-linux-gnu/libmysqlclient.so.21)
+target_link_libraries(Projet ${GTK3_LIBRARIES} ${CURL_LIBRARIES} /usr/lib/x86_64-linux-gnu/libmysqlclient.so.21)
