@@ -1,3 +1,0 @@
-/home/aurelien/Bureau/project C/Auly-ManageStockC-main/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/aurelien/Bureau/project C/Auly-ManageStockC-main/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/aurelien/Bureau/project C/Auly-ManageStockC-main/cmake-build-debug/CMakeFiles/Projet.dir
