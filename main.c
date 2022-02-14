@@ -3,8 +3,17 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include "window.h"
+#include <mysql.h>
 
 int testCurl(char* url);
+
+void selectMysql();
+void finish_with_error(MYSQL *con)
+{
+    fprintf(stderr, "%s\n", mysql_error(con));
+    mysql_close(con);
+    exit(1);
+}
 
 int main(int argc, char *argv[]) {
     /*GtkWidget *fenetre_principale = NULL;
@@ -46,6 +55,9 @@ int main(int argc, char *argv[]) {
 
     testCurl("google.fr");
 
+    selectMysql();
+
+
     return 0;
 }
 
@@ -77,4 +89,68 @@ int testCurl(char *url) {
         curl_easy_cleanup(curl);
     }
     return 0;
+}
+
+
+/**
+ * Fonction test qui récupère les informations en bdd.
+ */
+void selectMysql() {
+    MYSQL *con = mysql_init(NULL);
+
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    // Exécution d'une requête SQL. Exit avec erreur sinon.
+    if (mysql_query(con, "SELECT * FROM Product"))
+    {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL)
+    {
+        finish_with_error(con);
+    }
+
+    // Renvoie le nombre de colonnes de la table (pas le nombre de lignes bellec)
+    int num_fields = mysql_num_fields(result);
+
+    MYSQL_ROW row;
+
+    printf("\n\nNombre de colonnes : %d\n", num_fields);
+
+    printf("\nID | titre | description | url \n");
+
+    // mysql_fetch_row fonctionne comme en PHP, chaque call de la fonction récupère la ligne suivante dans le résultat (result)
+    while ((row = mysql_fetch_row(result)))
+    {
+        // La ligne existe sous forme de array donc on itère pour récupérer.
+        for(int i = 0; i < num_fields; i++)
+        {
+            printf("%s | ", row[i] ? row[i] : "NULL");
+        }
+
+        printf("\n");
+    }
+
+    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
+    mysql_free_result(result);
+
+    printf("\nMySQL client version: %s\n", mysql_get_client_info());
+
+
+    // On ferme la connexion au serveur
+    mysql_close(con);
 }
