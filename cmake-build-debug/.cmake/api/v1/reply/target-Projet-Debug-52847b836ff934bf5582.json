@@ -2,7 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "Projet"
+			"path" : "Projet.exe"
+		},
+		{
+			"path" : "Projet.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -55,7 +58,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g   -pthread"
+					"fragment" : "-g   -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -mms-bitfields -pthread -mms-bitfields"
 				},
 				{
 					"fragment" : "-std=gnu99"
@@ -65,87 +68,59 @@
 			[
 				{
 					"backtrace" : 3,
-					"path" : "/home/aurelien/Bureau/project C/Auly-ManageStockC-main/C:/Program Files/MySQL/MySQL Connector C 6.1/include"
+					"path" : "C:/Program Files/MySQL/MySQL Connector C 6.1/include"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/gtk-3.0"
+					"path" : "C:/msys64/mingw64/bin/../include/gtk-3.0"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/at-spi2-atk/2.0"
+					"path" : "C:/msys64/mingw64/bin/../include/pango-1.0"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/at-spi-2.0"
+					"path" : "C:/msys64/mingw64/bin/../include/glib-2.0"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/dbus-1.0"
+					"path" : "C:/msys64/mingw64/bin/../lib/glib-2.0/include"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/lib/x86_64-linux-gnu/dbus-1.0/include"
+					"path" : "C:/msys64/mingw64/bin/../include/harfbuzz"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/gio-unix-2.0"
+					"path" : "C:/msys64/mingw64/bin/../include/freetype2"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/cairo"
+					"path" : "C:/msys64/mingw64/bin/../include/libpng16"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/pango-1.0"
+					"path" : "C:/msys64/mingw64/bin/../include/fribidi"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/fribidi"
+					"path" : "C:/msys64/mingw64/bin/../include/cairo"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/harfbuzz"
+					"path" : "C:/msys64/mingw64/bin/../include/lzo"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/atk-1.0"
+					"path" : "C:/msys64/mingw64/bin/../include/pixman-1"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/pixman-1"
+					"path" : "C:/msys64/mingw64/bin/../include/gdk-pixbuf-2.0"
 				},
 				{
 					"backtrace" : 4,
-					"path" : "/usr/include/uuid"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/freetype2"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/libpng16"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/gdk-pixbuf-2.0"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/libmount"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/blkid"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/include/glib-2.0"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
+					"path" : "C:/msys64/mingw64/bin/../include/atk-1.0"
 				}
 			],
 			"language" : "C",
@@ -185,6 +160,56 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "-lgdk-3",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lz",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lgdi32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-limm32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lshell32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lole32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lwinmm",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-ldwmapi",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lsetupapi",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lcfgmgr32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lpangowin32-1.0",
 				"role" : "libraries"
 			},
 			{
@@ -239,14 +264,23 @@
 			},
 			{
 				"backtrace" : 2,
+				"fragment" : "-lintl",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
 				"fragment" : "-lcurl",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
 				"role" : "libraries"
 			}
 		],
 		"language" : "C"
 	},
 	"name" : "Projet",
-	"nameOnDisk" : "Projet",
+	"nameOnDisk" : "Projet.exe",
 	"paths" : 
 	{
 		"build" : ".",

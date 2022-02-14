@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/aurelien/Bureau/project C/Auly-ManageStockC-main/main.c" "CMakeFiles/Projet.dir/main.c.o" "gcc" "CMakeFiles/Projet.dir/main.c.o.d"
-  "/home/aurelien/Bureau/project C/Auly-ManageStockC-main/window.c" "CMakeFiles/Projet.dir/window.c.o" "gcc" "CMakeFiles/Projet.dir/window.c.o.d"
+  "C:/Users/33695/Documents/etudes/ESGI/Cours 2eme annee/Projet C/Auly-ManageStockC/main.c" "CMakeFiles/Projet.dir/main.c.obj" "gcc" "CMakeFiles/Projet.dir/main.c.obj.d"
+  "C:/Users/33695/Documents/etudes/ESGI/Cours 2eme annee/Projet C/Auly-ManageStockC/window.c" "CMakeFiles/Projet.dir/window.c.obj" "gcc" "CMakeFiles/Projet.dir/window.c.obj.d"
   )
 
 # Targets to which this target links.
