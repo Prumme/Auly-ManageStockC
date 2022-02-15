@@ -1,8 +1,16 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+<<<<<<< HEAD
 # Datasource local storage ignored files
 /../../../../../../../../../../:\Users\33695\Documents\etudes\ESGI\Cours 2eme annee\Projet C\Auly-ManageStockC\.idea/dataSources/
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+=======
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+>>>>>>> 7a477add5fc3f4f004f7de703e4ae830cebeaffe
