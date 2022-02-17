@@ -3,6 +3,48 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include "window.h"
+
+int main(int argc, char *argv[]) {
+    int num = 0;
+    char *string = malloc(68000);
+    char student[100] = {0};
+
+    FILE *in_file = fopen("test.html", "r");
+    if (in_file == NULL) {
+        printf("Error file missing\n");
+        exit(-1);
+    }
+
+    printf("please enter a word(enter 0 to end)\n");
+//    scanf("%s", student);
+    fgets(student, 200, stdin);
+    size_t n = strlen(student);
+    if (n && student[n - 1] == '\n') student[--n] = '\0';
+    while (fread(string, sizeof(char), 68000, in_file)) {
+        //Add a for loop till   strstr(string, student) does-not returns null.
+        if (strstr(string, student) != 0) {//if match found
+            num++;
+        }
+        printf("coucou \n %s", string);
+        printf("tu as rentré \n %s", student);
+    }/*
+    while (fscanf(in_file, "%s", string) == 1) {
+        //Add a for loop till strstr(string, student) does-not returns null.
+        if (strstr(string, student) != 0) {//if match found
+            num++;
+        }
+    }*/
+    printf("we found the word %s in the file %d times\n", student, num);
+    if (num > 0) {
+        printf("\nIl y avait une occurence !");
+        return 1;
+    } else {
+        printf("\nIl n'y avait aucune occurence !");
+        return 0;
+    }
+    return 0;
+}
+/*
 #include <mysql.h>
 
 int testCurl(char *url);
@@ -14,7 +56,9 @@ void finish_with_error(MYSQL *con) {
     exit(1);
 }
 
-/* Partie GTK */
+*/
+/* Partie GTK *//*
+
 void OnDestroy(GtkWidget *pWidget, gpointer pData);
 void form(int arc, char **argv);
 void go_to_form(int arc, char **argv);
@@ -159,31 +203,43 @@ int testCurl(char *url) {
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url);
 
-        /* example.com is redirected, so we tell libcurl to follow redirection */
+        */
+/* example.com is redirected, so we tell libcurl to follow redirection *//*
+
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-        /* create an output file and prepare to write the response */
+        */
+/* create an output file and prepare to write the response *//*
+
         FILE *output_file = fopen("output_file.html", "w");
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file);
 
-        /* Perform the request, res will get the return code */
+        */
+/* Perform the request, res will get the return code *//*
+
         res = curl_easy_perform(curl);
 
-        /* Check for errors */
+        */
+/* Check for errors *//*
+
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %sn",
                     curl_easy_strerror(res));
         }
 
-        /* always cleanup */
+        */
+/* always cleanup *//*
+
         curl_easy_cleanup(curl);
     }
     return 0;
 }
 
+*/
 /**
  * Fonction test qui récupère les informations en bdd.
- */
+ *//*
+
 void selectMysql() {
     MYSQL *con = mysql_init(NULL);
 
@@ -241,7 +297,9 @@ void selectMysql() {
 }
 
 
-/* Partie GTK */
+*/
+/* Partie GTK *//*
+
 void go_to_form(int argc, char **argv) {
     //apelle la fonction form
     form(argc, argv);
@@ -328,4 +386,4 @@ void confirm(GtkWidget *pEntry, gpointer data) {
 }
 void OnDestroy(GtkWidget *pWidget, gpointer pData) {
     gtk_main_quit;
-}
+}*/
