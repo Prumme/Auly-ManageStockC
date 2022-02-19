@@ -5,9 +5,19 @@
 #include "window.h"
 #include <mysql.h>
 
+
+//Entrée de text pour le formulaire
+GtkEntry *entry_url;
+GtkEntry *entry_price;
+GtkEntry *entry_description;
+GtkEntry *entry_name;
+
+
 int testCurl(char *url);
 
+//char ** selectMysql();
 void selectMysql();
+
 void finish_with_error(MYSQL *con) {
     fprintf(stderr, "%s\n", mysql_error(con));
     mysql_close(con);
@@ -15,16 +25,135 @@ void finish_with_error(MYSQL *con) {
 }
 
 /* Partie GTK */
+void main_page(int argc, char **argv);
+
 void OnDestroy(GtkWidget *pWidget, gpointer pData);
+
 void form(int arc, char **argv);
-void go_to_form(int arc, char **argv);
+
+
+
 void confirm(GtkWidget *pEntry, gpointer data);
 
+
 int main(int argc, char *argv[]) {
-    testCurl("google.fr");
+    char **row;
+
+    //testCurl("google.fr");
+    //row = selectMysql();
     selectMysql();
 
 
+    main_page(argc, argv);
+
+
+    return EXIT_SUCCESS;
+
+
+    return 0;
+}
+
+int testCurl(char *url) {
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+
+        /* example.com is redirected, so we tell libcurl to follow redirection */
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+        /* create an output file and prepare to write the response */
+        FILE *output_file = fopen("output_file.html", "w");
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file);
+
+        /* Perform the request, res will get the return code */
+        res = curl_easy_perform(curl);
+
+        /* Check for errors */
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %sn",
+                    curl_easy_strerror(res));
+        }
+
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+    }
+    return 0;
+}
+
+/**
+ * Fonction test qui récupère les informations en bdd.
+ */
+//char** selectMysql() {
+void selectMysql() {
+    MYSQL *con = mysql_init(NULL);
+    char *ptr = (char *) malloc(255 * 10 * 4 * sizeof(char));
+
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    // Exécution d'une requête SQL. Exit avec erreur sinon.
+    if (mysql_query(con, "SELECT * FROM Product")) {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL) {
+        finish_with_error(con);
+    }
+
+    // Renvoie le nombre de colonnes de la table (pas le nombre de lignes bellec)
+    int num_fields = mysql_num_fields(result);
+
+    MYSQL_ROW row;
+
+    printf("\n\nNombre de colonnes : %d\n", num_fields);
+
+    printf("\nID | titre | description | url \n");
+
+    // mysql_fetch_row fonctionne comme en PHP, chaque call de la fonction récupère la ligne suivante dans le résultat (result)
+    while ((row = mysql_fetch_row(result))) {
+        // La ligne existe sous forme de array donc on itère pour récupérer.
+        for (int i = 0; i < num_fields; i++) {
+            printf("%s | ", row[i] ? row[i] : "NULL");
+            //    *(ptr+i) = row[i] ? row[i] : "NULL";
+        }
+
+
+        printf("\n");
+    }
+
+
+
+    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
+    mysql_free_result(result);
+
+    printf("\nMySQL client version: %s\n", mysql_get_client_info());
+
+
+    // On ferme la connexion au serveur
+    mysql_close(con);
+    //  return ptr;
+
+
+}
+
+
+/* Partie GTK */
+void main_page(int argc, char **argv) {
     GtkWidget *window;
     GtkLabel *label1;
     GtkLabel *label[5][3];
@@ -119,7 +248,7 @@ int main(int argc, char *argv[]) {
     //Creation d'un bouton avec label
     btn = gtk_button_new_with_label("Ajouter un produit");
     //Appelle de la fonction go to form
-    g_signal_connect(G_OBJECT(btn), "clicked", G_CALLBACK(go_to_form), NULL);
+    g_signal_connect(G_OBJECT(btn), "clicked", G_CALLBACK(form), NULL);
 
 
     //Insertion d'une box horizontal puis du label/input/btn dans la fenetre
@@ -145,124 +274,26 @@ int main(int argc, char *argv[]) {
     gtk_widget_show_all(window);
     //d�finit la window main
     gtk_main();
-    return EXIT_SUCCESS;
 
-
-    return 0;
 }
 
-int testCurl(char *url) {
-    CURL *curl;
-    CURLcode res;
-
-    curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        /* example.com is redirected, so we tell libcurl to follow redirection */
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-        /* create an output file and prepare to write the response */
-        FILE *output_file = fopen("output_file.html", "w");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file);
-
-        /* Perform the request, res will get the return code */
-        res = curl_easy_perform(curl);
-
-        /* Check for errors */
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %sn",
-                    curl_easy_strerror(res));
-        }
-
-        /* always cleanup */
-        curl_easy_cleanup(curl);
-    }
-    return 0;
-}
-
-/**
- * Fonction test qui récupère les informations en bdd.
- */
-void selectMysql() {
-    MYSQL *con = mysql_init(NULL);
-
-    if (con == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
-        exit(1);
-    }
-
-    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
-    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
-                           "test", 0, NULL, 0) == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
-        mysql_close(con);
-        exit(1);
-    }
-
-    // Exécution d'une requête SQL. Exit avec erreur sinon.
-    if (mysql_query(con, "SELECT * FROM Product")) {
-        finish_with_error(con);
-    }
-
-    MYSQL_RES *result = mysql_store_result(con);
-
-    if (result == NULL) {
-        finish_with_error(con);
-    }
-
-    // Renvoie le nombre de colonnes de la table (pas le nombre de lignes bellec)
-    int num_fields = mysql_num_fields(result);
-
-    MYSQL_ROW row;
-
-    printf("\n\nNombre de colonnes : %d\n", num_fields);
-
-    printf("\nID | titre | description | url \n");
-
-    // mysql_fetch_row fonctionne comme en PHP, chaque call de la fonction récupère la ligne suivante dans le résultat (result)
-    while ((row = mysql_fetch_row(result))) {
-        // La ligne existe sous forme de array donc on itère pour récupérer.
-        for (int i = 0; i < num_fields; i++) {
-            printf("%s | ", row[i] ? row[i] : "NULL");
-        }
-
-        printf("\n");
-    }
-
-    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
-    mysql_free_result(result);
-
-    printf("\nMySQL client version: %s\n", mysql_get_client_info());
-
-
-    // On ferme la connexion au serveur
-    mysql_close(con);
-}
-
-
-/* Partie GTK */
-void go_to_form(int argc, char **argv) {
-    //apelle la fonction form
-    form(argc, argv);
-}
 void form(int argc, char **argv) {
     //Definintion des widget de gtk
     GtkWidget *window;
 
-    GtkWidget *entryName;
-    GtkWidget *entryUrl;
-    GtkWidget *entryPrice;
-    GtkWidget *entryDescription;
-
     GtkWidget *labelName;
     GtkWidget *labelUrl;
-    GtkWidget *labelPrice;
+
     GtkWidget *labelDescription;
 
     GtkWidget *pVBox1;
     GtkWidget *pHBox1;
     GtkWidget *pHBox2;
+    GtkWidget *pHBox3;
+
+    GtkWidget *VNameBox;
+    GtkWidget *VDescriptionBox;
+    GtkWidget *VUrlBox;
 
     GtkWidget *confirmBtn;
 
@@ -273,7 +304,7 @@ void form(int argc, char **argv) {
     //Definition de la window plus parametre
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW (window), "Auly ManageStockC - Formulaire");
-    gtk_window_set_default_size(GTK_WINDOW (window), 700, 700);
+    gtk_window_set_default_size(GTK_WINDOW (window), 750, 400);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
@@ -281,33 +312,41 @@ void form(int argc, char **argv) {
     pVBox1 = gtk_vbox_new(TRUE, 0);
     pHBox1 = gtk_hbox_new(TRUE, 0);
     pHBox2 = gtk_hbox_new(TRUE, 0);
+    pHBox3 = gtk_hbox_new(TRUE, 0);
+
+    VNameBox = gtk_vbox_new(TRUE, 2);
+    VUrlBox = gtk_vbox_new(TRUE, 2);
+    VDescriptionBox = gtk_vbox_new(TRUE, 2);
+
     gtk_container_add(GTK_CONTAINER(window), pVBox1);
 
-    entryName = gtk_entry_new();
-    entryUrl = gtk_entry_new();
-    entryPrice = gtk_entry_new();
-    entryDescription = gtk_entry_new();
+    entry_name = gtk_entry_new();
+    entry_url = gtk_entry_new();
+    entry_description = gtk_entry_new();
 
     labelDescription = gtk_label_new("Description");
     labelName = gtk_label_new("Nom");
-    labelPrice = gtk_label_new("Prix");
     labelUrl = gtk_label_new("Url");
 
     confirmBtn = gtk_button_new_with_label("Confirmer");
 
     gtk_box_pack_start(GTK_BOX(pVBox1), pHBox1, TRUE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(pVBox1), pHBox2, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pVBox1), confirmBtn, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pVBox1), pHBox3, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox3), confirmBtn, FALSE, FALSE, 50);
 
-    gtk_box_pack_start(GTK_BOX(pHBox1), labelName, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox1), entryName, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox1), labelPrice, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox1), entryPrice, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox1), VNameBox, TRUE, TRUE, 25);
+    gtk_box_pack_start(GTK_BOX(VNameBox), labelName, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(VNameBox), entry_name, TRUE, TRUE, 0);
 
-    gtk_box_pack_start(GTK_BOX(pHBox2), labelDescription, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox2), entryDescription, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox2), labelUrl, TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox2), entryUrl, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox1), VUrlBox, TRUE, TRUE, 25);
+    gtk_box_pack_start(GTK_BOX(VUrlBox), labelUrl, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(VUrlBox), entry_url, TRUE, TRUE, 0);
+
+    gtk_box_pack_start(GTK_BOX(pHBox2), VDescriptionBox, TRUE, TRUE, 25);
+    gtk_box_pack_start(GTK_BOX(VDescriptionBox), labelDescription, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(VDescriptionBox), entry_description, TRUE, TRUE, 0);
+
 
 
     g_signal_connect(G_OBJECT(confirmBtn), "clicked", G_CALLBACK(confirm), pVBox1);
@@ -316,16 +355,33 @@ void form(int argc, char **argv) {
     gtk_main();
 
 }
-void confirm(GtkWidget *pEntry, gpointer data) {
-    GtkWidget *tempEntryName;
-    GtkWidget *tempLabelName;
-    GList *list;
-    const gchar *text;
 
-    list = gtk_container_get_children(GTK_CONTAINER((GtkWidget *) data));
-    tempEntryName = GTK_WIDGET(list->data);
-    g_print("%p\n", data);
+void confirm(GtkWidget *pEntry, gpointer data) {
+
+    g_print("Nom: %s\n", gtk_entry_get_text(GTK_ENTRY(entry_name)));
+    g_print("Url : %s\n", gtk_entry_get_text(GTK_ENTRY(entry_url)));
+    g_print("Description: %s\n", gtk_entry_get_text(GTK_ENTRY(entry_description)));
+
+
+
+    MYSQL * conn = mysql_init(NULL);
+    if(mysql_real_connect(conn, "localhost", "esgi", "esgi",
+                          "test", 0, NULL, 0)){
+        char q[1000];
+        sprintf(&q, "INSERT INTO Product(titre, description, url) VALUES ('%s', '%s', '%s')",
+                gtk_entry_get_text(GTK_ENTRY(entry_name)),
+                gtk_entry_get_text(GTK_ENTRY(entry_description)),
+                gtk_entry_get_text(GTK_ENTRY(entry_url)));
+
+        if(mysql_query(conn, q)){
+            g_print("Error: %d", mysql_errno(conn));
+        }
+    }else{
+        g_print("Error: %d", mysql_errno(conn));
+    }
+
 }
+
 void OnDestroy(GtkWidget *pWidget, gpointer pData) {
     gtk_main_quit;
 }
