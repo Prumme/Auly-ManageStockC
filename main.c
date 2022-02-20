@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include "window.h"
 #include <mysql.h>
+#include <string.h>
 
 
 //Entrée de text pour le formulaire
@@ -32,25 +34,27 @@ void OnDestroy(GtkWidget *pWidget, gpointer pData);
 void form(int arc, char **argv);
 
 
-
 void confirm(GtkWidget *pEntry, gpointer data);
 
 
 int main(int argc, char *argv[]) {
     char **row;
 
+
+
+
+
     //testCurl("google.fr");
     //row = selectMysql();
-    selectMysql();
-
+    //selectMysql();
 
     main_page(argc, argv);
 
 
+    return 0;
+
     return EXIT_SUCCESS;
 
-
-    return 0;
 }
 
 int testCurl(char *url) {
@@ -156,14 +160,26 @@ void selectMysql() {
 void main_page(int argc, char **argv) {
     GtkWidget *window;
     GtkLabel *label1;
-    GtkLabel *label[5][3];
+
     gchar *sUtf8;
     GtkWidget *pVBox;
-    GtkWidget *pHBoxProduct[5];
+
     GtkWidget *pHBox;
     GtkWidget *btn;
     GtkWidget *entry;
     GtkWidget *scrollbar;
+
+    char *buffer[255];
+    FILE *data = NULL;
+    int c, nbRow = 0, i = 0, j = 0;
+    int c2 = '\0';
+
+
+    data = fopen("../data.txt", "r");
+
+
+
+
 
 
 
@@ -175,25 +191,29 @@ void main_page(int argc, char **argv) {
 
     //DEFINITION DE VARIABLE LABEL (gtk label new permet de cr�er un label avec un string)
     label1 = (GtkLabel *) gtk_label_new(NULL);
-    label[0][0] = gtk_label_new("Product 1");
-    label[0][1] = gtk_label_new("Description 1");
-    label[0][2] = gtk_label_new("Price 1");
 
-    label[1][0] = gtk_label_new("Product 2");
-    label[1][1] = gtk_label_new("Description 2");
-    label[1][2] = gtk_label_new("Price 2");
 
-    label[2][0] = gtk_label_new("Product 3");
-    label[2][1] = gtk_label_new("Description 3");
-    label[2][2] = gtk_label_new("Price 3");
+    if (data != NULL) {
 
-    label[3][0] = gtk_label_new("Product 4");
-    label[3][1] = gtk_label_new("Description 4");
-    label[3][2] = gtk_label_new("Price 4");
+        while ((c = fgetc(data)) != EOF) {
+            if (c == '\n')
+                nbRow++;
+            c2 = c;
+        }
 
-    label[4][0] = gtk_label_new("Product 5");
-    label[4][1] = gtk_label_new("Description 5");
-    label[4][2] = gtk_label_new("Price 5");
+        if (c2 != '\n')
+            nbRow++;
+        fclose(data);
+    }
+
+
+    GtkLabel *label[nbRow][3];
+    GtkWidget *pHBoxProduct[nbRow];
+
+
+
+
+
 
 
     //DEFINITION d'un label avec des classe de style
@@ -227,11 +247,6 @@ void main_page(int argc, char **argv) {
     //Cr�ation de box/container verticale / horizontales
     pVBox = gtk_vbox_new(FALSE, 25);
 
-    pHBoxProduct[0] = gtk_hbox_new(TRUE, 0);
-    pHBoxProduct[1] = gtk_hbox_new(TRUE, 0);
-    pHBoxProduct[2] = gtk_hbox_new(TRUE, 0);
-    pHBoxProduct[3] = gtk_hbox_new(TRUE, 0);
-    pHBoxProduct[4] = gtk_hbox_new(TRUE, 0);
 
     pHBox = gtk_hbox_new(TRUE, 0);
 
@@ -263,16 +278,41 @@ void main_page(int argc, char **argv) {
 
 
     //Boucle pour rentrer les infos
-    for (int i = 0; i < 5; i++) {
-        gtk_box_pack_start(GTK_BOX(pVBox), pHBoxProduct[i], FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][0], FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][1], FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][2], FALSE, FALSE, 0);
-    }
 
-    //Affiche la window et tous les widget � l'interieur
+    data = fopen("../data.txt", "r");
+
+    if (data != NULL) {
+
+        i = 0;
+
+
+        while (fgets(buffer, 255, data)) {
+
+
+            char *token = strtok(buffer, ";");
+
+            j = 0;
+
+            pHBoxProduct[i] = gtk_hbox_new(TRUE, 0);
+            gtk_box_pack_start(GTK_BOX(pVBox), pHBoxProduct[i], FALSE, FALSE, 0);
+            while (token != NULL) {
+                g_print("i: %d j: %d \n", i, j);
+
+
+                label[i][j] = gtk_label_new(token);
+
+                gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][j], FALSE, FALSE, 0);
+                token = strtok(NULL, ";");
+                j++;
+            }
+            i++;
+        }
+        fclose(data);
+    }
+    printf("%d", i);
+    //Affiche la window et tous les widget a l'interieur
     gtk_widget_show_all(window);
-    //d�finit la window main
+    //definit la window main
     gtk_main();
 
 }
@@ -348,7 +388,6 @@ void form(int argc, char **argv) {
     gtk_box_pack_start(GTK_BOX(VDescriptionBox), entry_description, TRUE, TRUE, 0);
 
 
-
     g_signal_connect(G_OBJECT(confirmBtn), "clicked", G_CALLBACK(confirm), pVBox1);
 
     gtk_widget_show_all(window);
@@ -363,20 +402,19 @@ void confirm(GtkWidget *pEntry, gpointer data) {
     g_print("Description: %s\n", gtk_entry_get_text(GTK_ENTRY(entry_description)));
 
 
-
-    MYSQL * conn = mysql_init(NULL);
-    if(mysql_real_connect(conn, "localhost", "esgi", "esgi",
-                          "test", 0, NULL, 0)){
+    MYSQL *conn = mysql_init(NULL);
+    if (mysql_real_connect(conn, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0)) {
         char q[1000];
         sprintf(&q, "INSERT INTO Product(titre, description, url) VALUES ('%s', '%s', '%s')",
                 gtk_entry_get_text(GTK_ENTRY(entry_name)),
                 gtk_entry_get_text(GTK_ENTRY(entry_description)),
                 gtk_entry_get_text(GTK_ENTRY(entry_url)));
 
-        if(mysql_query(conn, q)){
+        if (mysql_query(conn, q)) {
             g_print("Error: %d", mysql_errno(conn));
         }
-    }else{
+    } else {
         g_print("Error: %d", mysql_errno(conn));
     }
 
