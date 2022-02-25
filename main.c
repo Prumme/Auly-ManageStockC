@@ -10,9 +10,10 @@
 
 //Entrée de text pour le formulaire
 GtkEntry *entry_url;
-GtkEntry *entry_price;
+
 GtkEntry *entry_description;
 GtkEntry *entry_name;
+int id;
 
 
 int testCurl(char *url);
@@ -33,14 +34,22 @@ void OnDestroy(GtkWidget *pWidget, gpointer pData);
 
 void form(int arc, char **argv);
 
+void more(GtkWidget *pWidget, gpointer pData);
+
+void delete(GtkWidget *pWidget, gpointer data);
+
+void test(GtkWidget *pWidget, gpointer data);
+
 
 void confirm(GtkWidget *pEntry, gpointer data);
 
+typedef struct _identifier {
+    int id;
+
+} identifier;
 
 int main(int argc, char *argv[]) {
     char **row;
-
-
 
 
 
@@ -173,17 +182,13 @@ void main_page(int argc, char **argv) {
     FILE *data = NULL;
     int c, nbRow = 0, i = 0, j = 0;
     int c2 = '\0';
+    int tmp;
+    char *token;
+
+    unsigned int counter = 0;
 
 
     data = fopen("../data.txt", "r");
-
-
-
-
-
-
-
-
 
     //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
     gtk_init(&argc, &argv);
@@ -209,11 +214,9 @@ void main_page(int argc, char **argv) {
 
     GtkLabel *label[nbRow][3];
     GtkWidget *pHBoxProduct[nbRow];
+    GtkWidget *btnMore[nbRow];
 
-
-
-
-
+    identifier id[nbRow * 2];
 
 
     //DEFINITION d'un label avec des classe de style
@@ -287,33 +290,40 @@ void main_page(int argc, char **argv) {
 
 
         while (fgets(buffer, 255, data)) {
+            token = strtok(buffer, ";");
 
-
-            char *token = strtok(buffer, ";");
 
             j = 0;
 
             pHBoxProduct[i] = gtk_hbox_new(TRUE, 0);
             gtk_box_pack_start(GTK_BOX(pVBox), pHBoxProduct[i], FALSE, FALSE, 0);
             while (token != NULL) {
-                g_print("i: %d j: %d \n", i, j);
 
+                if (j != 0) {
+                    label[i][j] = gtk_label_new(token);
 
-                label[i][j] = gtk_label_new(token);
+                    gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][j], FALSE, FALSE, 0);
+                    token = strtok(NULL, ";");
 
-                gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][j], FALSE, FALSE, 0);
-                token = strtok(NULL, ";");
+                } else {
+                    tmp = atoi(token);
+                    id[counter].id = tmp;
+                }
                 j++;
             }
+            btnMore[i] = gtk_button_new_with_label("...");
+            gtk_box_pack_start(GTK_BOX((pHBoxProduct[i])), btnMore[i], FALSE, FALSE, 0);
+            g_signal_connect(G_OBJECT(btnMore[i]), "pressed", G_CALLBACK(more), &id[counter]);
+            counter++;
             i++;
         }
         fclose(data);
     }
-    printf("%d", i);
     //Affiche la window et tous les widget a l'interieur
     gtk_widget_show_all(window);
     //definit la window main
     gtk_main();
+
 
 }
 
@@ -388,7 +398,7 @@ void form(int argc, char **argv) {
     gtk_box_pack_start(GTK_BOX(VDescriptionBox), entry_description, TRUE, TRUE, 0);
 
 
-    g_signal_connect(G_OBJECT(confirmBtn), "clicked", G_CALLBACK(confirm), pVBox1);
+    g_signal_connect(G_OBJECT(confirmBtn), "clicked", G_CALLBACK(confirm), window);
 
     gtk_widget_show_all(window);
     gtk_main();
@@ -396,6 +406,7 @@ void form(int argc, char **argv) {
 }
 
 void confirm(GtkWidget *pEntry, gpointer data) {
+    gtk_window_close(data);
 
     g_print("Nom: %s\n", gtk_entry_get_text(GTK_ENTRY(entry_name)));
     g_print("Url : %s\n", gtk_entry_get_text(GTK_ENTRY(entry_url)));
@@ -420,6 +431,71 @@ void confirm(GtkWidget *pEntry, gpointer data) {
 
 }
 
-void OnDestroy(GtkWidget *pWidget, gpointer pData) {
+void more(GtkWidget *button, gpointer data) {
+    (void) button;
+    identifier *id = data;
+
+
+    GtkWidget *window;
+    GtkWidget *pVBox;
+    GtkWidget *footer;
+    GtkWidget *modif_div;
+    GtkWidget *title;
+    GtkWidget *deleteButton;
+    GtkWidget *closeButton;
+    GtkWidget *labelTitle;
+    GtkWidget *labelDescription;
+
+    entry_description = gtk_entry_new();
+    gtk_entry_set_text(entry_description, "voiture pas chere");
+    entry_name = gtk_entry_new();
+    gtk_entry_set_text(entry_name, "voiture");
+
+    pVBox = gtk_vbox_new(FALSE, 25);
+    footer = gtk_hbox_new(TRUE, 25);
+    modif_div = gtk_hbox_new(TRUE, 25);
+
+    deleteButton = gtk_button_new_with_label("Supprimer");
+    closeButton = gtk_button_new_with_label("Fermer");
+
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW (window), "Auly ManageStockC - Voir plus");
+    gtk_window_set_default_size(GTK_WINDOW (window), 750, 400);
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+
+    title = gtk_label_new(id);
+
+    gtk_container_add(GTK_CONTAINER(window), pVBox);
+    gtk_box_pack_start(GTK_BOX(pVBox), title, NULL, NULL, 0);
+
+    gtk_box_pack_start(GTK_BOX(pVBox), modif_div, NULL, NULL, 0);
+    gtk_box_pack_start(GTK_BOX(modif_div), entry_name, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(modif_div), entry_description, FALSE, FALSE, 0);
+
+    gtk_box_pack_end(GTK_BOX(pVBox), footer, FALSE, TRUE, 15);
+
+
+    gtk_box_pack_start(GTK_BOX(footer), deleteButton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(footer), closeButton, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(delete), window);
+    g_signal_connect(G_OBJECT(closeButton), "clicked", G_CALLBACK(delete), window);
+    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(test), "test");
+    gtk_widget_show_all(window);
+
+
+}
+
+void delete(GtkWidget *pWidget, gpointer data) {
+    gtk_window_close(data);
+}
+
+void test(GtkWidget *pWidget, gpointer data) {
+    g_print("%s", data);
+}
+
+
+void OnDestroy(GtkWidget *pWidget, gpointer data) {
     gtk_main_quit;
+
 }
