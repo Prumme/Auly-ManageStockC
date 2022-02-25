@@ -1,11 +1,9 @@
-//
-// Created by esgi on 19/02/2022.
-//
 #include "memory.h"
 #include "stdlib.h"
 #include <stddef.h>
 #include <curl/curl.h>
 #include <mysql.h>
+
 #ifndef PROJET_CURLBDD_H
 #define PROJET_CURLBDD_H
 
@@ -13,7 +11,9 @@ struct string {
     char *ptr;
     size_t len;
 };
+
 void init_string(struct string *s);
+
 size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *destString);
 
 /**
@@ -26,21 +26,21 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *destString
  * @param bufferString buffer dans lequel on écrit le body
  * @return 0 en cas de bon déroulement.
  */
-int recupBody(char* URL, struct string bufferString);
+int isInStock(char *URL, struct string bufferString);
 
 /**
  * Permet de vérifier si un produit est en stock sur topachat.com\n
  * @param html Page html à parser
  * @return 1 si le produit est en stock, 0 si le produit n'est pas immédiatement en stock
  */
-int verifyStockFromBuffer(char* html);
+int verifyStockFromBufferTopachat(char *html);
 
 /**
  * Permet de récupérer le prix d'un produit en stock sur topachat.com\n
  * @param html Page html à parser
  * @return le prix du produit
  */
-double verifyPriceFromBuffer(char* html);
+double verifyPriceFromBuffer(char *html);
 
 /**
  * Permet d'enregistrer en BDD le statut d'un produit

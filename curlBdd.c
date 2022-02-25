@@ -1,7 +1,3 @@
-//
-// Created by esgi on 19/02/2022.
-//
-
 #include "curlBdd.h"
 
 
@@ -29,7 +25,7 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *destString
     return size * nmemb;
 }
 
-int recupBody(char *URL, struct string bufferString) {
+int isInStock(char *URL, struct string bufferString) {
     CURL *curl;
     CURLcode res;
 
@@ -44,9 +40,19 @@ int recupBody(char *URL, struct string bufferString) {
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &bufferString);
         res = curl_easy_perform(curl);
 
-        int stock = verifyStockFromBuffer(bufferString.ptr);
-        double price = verifyPriceFromBuffer(bufferString.ptr);
-        logHistoryBdd(1, price, stock);
+        if (res != 0) {
+            printf("\nerreur de curl\n");
+            return 0;
+        }
+
+        int stock;
+        double price;
+        if (strstr(bufferString.ptr, "topachat.com") != 0) {//if match found
+            stock = verifyStockFromBufferTopachat(bufferString.ptr);
+            price = verifyPriceFromBuffer(bufferString.ptr);
+            logHistoryBdd(1, price, stock);
+        }
+
 
         free(bufferString.ptr); // On libère la mémoire accordée à la string
 
@@ -56,12 +62,17 @@ int recupBody(char *URL, struct string bufferString) {
     return 0;
 }
 
-int verifyStockFromBuffer(char *html) {
+int verifyStockFromBufferTopachat(char *html) {
 
     int num = 0;
     char stock[] = "class=\"cart-box en-stock\"";
+    char stock2[] = "class=\"cart-box en-stock-limite\"";
     if (strstr(html, stock) != 0) {//if match found
         num++;
+    } else {
+        if (strstr(html, stock2) != 0) {//if match found
+            num++;
+        }
     }
     printf("we found the word %s in the file %d times\n", stock, num);
     if (num > 0) {
@@ -90,8 +101,6 @@ double verifyPriceFromBuffer(char *html) {
                 memcpy(price, ptr2 + 1, bytes);
             }
         }
-
-        int done = 0;
     }
 
     printf("\n\n %s\n\n", price);
@@ -105,11 +114,10 @@ double verifyPriceFromBuffer(char *html) {
 
 int logHistoryBdd(int id, double price, int inStock) {
     MYSQL *con = mysql_init(NULL);
-    char *ptr = (char *) malloc(255 * 10 * 4 * sizeof(char));
 
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
-        exit(1);
+        return 0;
     }
 
     // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
@@ -130,4 +138,6 @@ int logHistoryBdd(int id, double price, int inStock) {
     // On ferme la connexion au serveur
     mysql_close(con);
     //  return ptr;
+
+    return 1;
 }
