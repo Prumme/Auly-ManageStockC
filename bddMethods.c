@@ -1,6 +1,6 @@
 #include "bddMethods.h"
 
-void ptdrTKi(int id, char **rowCopy) {
+void retrieveProductInfo(int id, char **rowCopy) {
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
@@ -53,6 +53,14 @@ void ptdrTKi(int id, char **rowCopy) {
 
     // On ferme la connexion au serveur
     mysql_close(con);
+}
+
+void freeRetrieveProductInfo(char **rowCopy){
+    for (int i = 0; i < 4; ++i) {
+        printf("\n%s",rowCopy[i]);
+        free(rowCopy[i]);
+    }
+    free(rowCopy);
 }
 
 void finish_with_error(MYSQL *con) {
