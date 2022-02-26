@@ -14,10 +14,10 @@ ALTER TABLE Product
 CREATE TABLE History
 (
     id         int PRIMARY KEY AUTO_INCREMENT,
-    id_product int       NOT NULL,
-    price      float     NOT NULL,
+    id_product int        NOT NULL,
+    price      float      NOT NULL,
     status     tinyint(1) NOT NULL,
-    timestamp  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    timestamp  timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (id_product) REFERENCES Product (id)
 

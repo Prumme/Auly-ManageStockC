@@ -20,6 +20,8 @@
  * @param id id de l'objet dans la BDD (clé primaire)
  * @param rowCopy array de *char (donc un **char)
  */
-void ptdrTKi(int id, char **rowCopy);
+void retrieveProductInfo(int id, char **rowCopy);
+
+void freeRetrieveProductInfo(char **rowCopy);
 
 void finish_with_error(MYSQL *con);
