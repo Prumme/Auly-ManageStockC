@@ -24,4 +24,23 @@ void retrieveProductInfo(int id, char **rowCopy);
 
 void freeRetrieveProductInfo(char **rowCopy);
 
+/**
+ * Renvoie dans \b historyArray jusqu'à 5 pointeurs qui eux pointent vers un array de string (une colonne mysql).\n\n
+ * Il faut intialiser un pointeur de pointeur de char (char***) et lui malloc 5 sizeof(char**)\n
+ * Il faut aussi initiliaser un unsigned long à 0 pour compter le nombre de lignes que l'on retourne (utile pour free ensuite les pointeurs.\n Exemple: \n\n
+ * char ***historyArray;\n
+    historyArray = malloc(5 * sizeof(char *));\n
+    unsigned long rowCount = 0;\n
+    retrieveProductHistory(2, historyArray, &rowCount);\n
+    freeProductHistory(historyArray, &rowCount);\n
+ * \n\n
+ * @param int id
+ * @param char** historyArray
+ * @param unsigned_long rowcount
+ */
+void retrieveProductHistory(int id, char ***historyArray, unsigned long* rowcount);
+
+void freeProductHistory(char ***historyArray,unsigned long* rowcount);
+
+
 void finish_with_error(MYSQL *con);
