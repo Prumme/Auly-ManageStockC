@@ -33,6 +33,6 @@ message(STATUS "libmysql library dirs: " ${libmysql_LIBRARY_DIRS})
 message(STATUS "libmysql clflags: " ${libmysql_CFLAGS_OTHER})
 message(STATUS "")
 
-add_executable(Projet main.c)
+add_executable(Projet main.c curlBdd.c curlBdd.h bddMethods.c bddMethods.h)
 
 target_link_libraries(Projet ${GTK3_LIBRARIES} ${CURL_LIBRARIES} /usr/lib/x86_64-linux-gnu/libmysqlclient.so.21)
