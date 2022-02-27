@@ -130,8 +130,10 @@ void retrieveProducts(char ***productList,unsigned long* rowCount) {
         exit(1);
     }
 
-    char sql[80];
-    sprintf(sql, "SELECT * FROM Product;");
+    char sql[301];
+    // Renvoie sous la forme id, titre, timestamp, prix, status (boolean)
+    sprintf(sql, "\n"
+                 "SELECT Product.id, Product.titre, H.timestamp, H.price, H.status FROM Product INNER JOIN History H ON Product.id = H.id_product INNER JOIN ( SELECT id, id_product, price, status, MAX(timestamp) Maxdate FROM History GROUP BY id_product ) q on q.id_product = H.id_product AND q.Maxdate = H.timestamp;");
     if (mysql_query(con, sql)) {
         finish_with_error(con);
     }
@@ -151,7 +153,7 @@ void retrieveProducts(char ***productList,unsigned long* rowCount) {
     realloc(productList, *rowCount);
 
     for (unsigned long j = 0; j < *rowCount; ++j) {
-        productList[j] = malloc(sizeof(char *) * 4);
+        productList[j] = malloc(sizeof(char *) * 5);
         row = mysql_fetch_row(result);
 
         for (int i = 0; i < num_fields; i++) {
