@@ -30,17 +30,17 @@ int isInStock(char *URL, struct string bufferString);
 
 /**
  * Permet de vérifier si un produit est en stock sur topachat.com\n
- * @param html Page html à parser
+ * @param curledHtml Page curledHtml à parser
  * @return 1 si le produit est en stock, 0 si le produit n'est pas immédiatement en stock
  */
-int verifyStockFromBufferTopachat(char *html);
+int verifyStockFromBufferTopachat(char *curledHtml);
 
 /**
  * Permet de récupérer le prix d'un produit en stock sur topachat.com\n
- * @param html Page html à parser
+ * @param curledHtml Page curledHtml à parser
  * @return le prix du produit
  */
-double verifyPriceFromBuffer(char *html);
+double verifyPriceFromBuffer(char *curledHtml);
 
 /**
  * Permet d'enregistrer en BDD le statut d'un produit

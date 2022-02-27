@@ -1,6 +1,6 @@
 #include "bddMethods.h"
 
-void retrieveProductInfo(int id, char **rowCopy) {
+void retrieveOneProductInfo(int id, char **productArray) {
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
@@ -34,17 +34,13 @@ void retrieveProductInfo(int id, char **rowCopy) {
 
     MYSQL_ROW row;
 
-    printf("\n\nNombre de colonnes : %lu\n", num_fields);
-
-    printf("\nID | titre | description | url \n");
-
     // mysql_fetch_row fonctionne comme en PHP, chaque call de la fonction récupère la ligne suivante dans le résultat (result)
     while ((row = mysql_fetch_row(result))) {
         // La ligne existe sous forme de array donc on itère pour récupérer.
         for (int i = 0; i < num_fields; i++) {
             lengths = mysql_fetch_lengths(result); // donne la taille des colonnes dans un array
-            rowCopy[i] = malloc(lengths[i] + 1);
-            strncpy(rowCopy[i], row[i], lengths[i] + 1); // On copie la colonne dans un pointeur de l'array de strings.
+            productArray[i] = malloc(lengths[i] + 1);
+            strncpy(productArray[i], row[i], lengths[i] + 1); // On copie la colonne dans un pointeur de l'array de strings.
         }
     }
 
@@ -55,15 +51,14 @@ void retrieveProductInfo(int id, char **rowCopy) {
     mysql_close(con);
 }
 
-void freeRetrieveProductInfo(char **rowCopy) {
+void freeRetrieveOneProductInfo(char **productArray) {
     for (int i = 0; i < 4; ++i) {
-        printf("\n%s", rowCopy[i]);
-        free(rowCopy[i]);
+        free(productArray[i]);
     }
-    free(rowCopy);
+    free(productArray);
 }
 
-void retrieveProductHistory(int id, char ***historyArray,unsigned long* rowcount) {
+void retrieveProductHistory(int id, char ***historyArray,unsigned long* rowCount) {
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
@@ -90,15 +85,12 @@ void retrieveProductHistory(int id, char ***historyArray,unsigned long* rowcount
     }
 
     unsigned long num_fields = mysql_num_fields(result);
-    *rowcount = mysql_num_rows(result);
+    *rowCount = mysql_num_rows(result);
     unsigned long *lengths;
 
     MYSQL_ROW row;
 
-
-    printf("\n\nNombre de colonnes : %lu\n", num_fields);
-
-    for (unsigned long j = 0; j < *rowcount; ++j) {
+    for (unsigned long j = 0; j < *rowCount; ++j) {
         historyArray[j] = malloc(sizeof(char *) * 5);
         row = mysql_fetch_row(result);
 
@@ -111,27 +103,77 @@ void retrieveProductHistory(int id, char ***historyArray,unsigned long* rowcount
 
     }
 
-    /*for (int k = 0; k < 5; ++k) {
+    mysql_free_result(result);
+    mysql_close(con);
+}
+
+void freeProductHistory(char ***historyArray, unsigned long* rowCount) {
+    for (unsigned long k = 0; k < *rowCount; ++k) {
         for (int l = 0; l < 5; ++l) {
-            printf("%s |", historyArray[k][l]);
             free(historyArray[k][l]);
         }
-        printf("\n");
-    }*/
+    }
+    free(historyArray);
+}
+
+void retrieveProducts(char ***productList,unsigned long* rowCount) {
+    MYSQL *con = mysql_init(NULL);
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    char sql[80];
+    sprintf(sql, "SELECT * FROM Product;");
+    if (mysql_query(con, sql)) {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL) {
+        finish_with_error(con);
+    }
+
+    unsigned long num_fields = mysql_num_fields(result);
+    *rowCount = mysql_num_rows(result);
+    unsigned long *lengths;
+
+    MYSQL_ROW row;
+
+    realloc(productList, *rowCount);
+
+    for (unsigned long j = 0; j < *rowCount; ++j) {
+        productList[j] = malloc(sizeof(char *) * 4);
+        row = mysql_fetch_row(result);
+
+        for (int i = 0; i < num_fields; i++) {
+            lengths = mysql_fetch_lengths(result); // donne la taille des colonnes dans un array
+            productList[j][i] = malloc(lengths[i] + 1);
+            strncpy(productList[j][i], row[i],
+                    lengths[i] + 1); // On copie la colonne dans un pointeur de l'array de strings.
+        }
+
+    }
 
     mysql_free_result(result);
     mysql_close(con);
 }
 
-void freeProductHistory(char ***historyArray, unsigned long* rowcount) {
-    for (unsigned long k = 0; k < *rowcount; ++k) {
-        for (int l = 0; l < 5; ++l) {
-            printf("%s |", historyArray[k][l]);
-            free(historyArray[k][l]);
+void freeProductList(char ***productList, unsigned long* rowCount) {
+    for (unsigned long k = 0; k < *rowCount; ++k) {
+        for (int l = 0; l < 4; ++l) {
+            free(productList[k][l]);
         }
-        printf("\n");
     }
-    free(historyArray);
+    free(productList);
 }
 
 
