@@ -293,6 +293,9 @@ void main_page() {
             switch (l){
                 case 0:
                     id[counter].id = atoi(productList[k][l]);
+                    showMoreBtn[k] = gtk_button_new_with_label("...");
+                    g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), &id[counter].id);
+                    gtk_box_pack_end(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
                     break;
                 case 1:
                     bodyLabel[k][l] = gtk_label_new(productList[k][l]);
@@ -315,12 +318,12 @@ void main_page() {
                     break;
 
             }
-
+        counter++;
         }
 
-        showMoreBtn[k] = gtk_button_new_with_label("...");
-        gtk_box_pack_start(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
-        g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), &id[counter].id);
+
+
+
 
     }
     freeProductList(productList, &rowCount);
