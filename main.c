@@ -24,11 +24,13 @@ int testCurl(char *url);
 void selectMysql();
 
 /* Partie GTK */
-void main_page(int argc, char **argv);
+void main_page();
 
 void OnDestroy(GtkWidget *pWidget, gpointer pData);
 
 void form(int arc, char **argv);
+
+void refresh_page(GtkWidget *pWidget, gpointer pData);
 
 void more(GtkWidget *pWidget, gpointer pData);
 
@@ -47,7 +49,11 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
-    main_page(argc, argv);
+
+    //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
+    gtk_init(&argc, &argv);
+
+    main_page();
 
     /*struct string coucou;
     isInStock(
@@ -169,7 +175,7 @@ void selectMysql() {
 
 
 /* Partie GTK */
-void main_page(int argc, char **argv) {
+void main_page() {
     GtkWidget *window;
     GtkLabel *label1;
 
@@ -178,6 +184,7 @@ void main_page(int argc, char **argv) {
 
     GtkWidget *pHBox;
     GtkWidget *btn;
+    GtkWidget *refresh;
     GtkWidget *scrollbar;
 
     char *buffer[255];
@@ -195,8 +202,7 @@ void main_page(int argc, char **argv) {
 
     data = fopen("../data.txt", "r");
 
-    //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
-    gtk_init(&argc, &argv);
+
 
 
     //DEFINITION DE VARIABLE LABEL (gtk label new permet de cr�er un label avec un string)
@@ -254,6 +260,9 @@ void main_page(int argc, char **argv) {
     //Appelle de la fonction go to form
     g_signal_connect(G_OBJECT(btn), "clicked", G_CALLBACK(form), NULL);
 
+    refresh = gtk_button_new_with_label("rafraichir");
+    g_signal_connect(G_OBJECT(refresh), "clicked", G_CALLBACK(refresh_page), window);
+
 
     //Insertion d'une box horizontal puis du label/input/btn dans la fenetre
     // RAPPEL (WINDOW>SCROLLABLE>VERTICALE BOX > MULTIPLE HORIZONTALE BOX> INFOS)
@@ -261,7 +270,7 @@ void main_page(int argc, char **argv) {
 
     gtk_box_pack_start(GTK_BOX(pHBox), label1, FALSE, FALSE, 0);
 
-
+    gtk_box_pack_start(GTK_BOX(pHBox), refresh, FALSE, FALSE, 0);
 
     gtk_box_pack_start(GTK_BOX(pHBox), btn, FALSE, FALSE, 0);
 
@@ -591,6 +600,13 @@ void close_window(GtkWidget *pWidget, gpointer data) {
     gtk_window_close(data);
 }
 
+void refresh_page(GtkWidget *pWidget, gpointer data) {
+    gtk_window_close(data);
+    main_page();
+
+}
+
+
 void delete(GtkWidget *pWidget, gpointer data) {
    MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
@@ -615,8 +631,9 @@ void delete(GtkWidget *pWidget, gpointer data) {
 
     MYSQL_RES *result = mysql_store_result(con);
 
-    if (result == NULL) {
+    if (result != NULL) {
         finish_with_error(con);
+
     }
 
     // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
