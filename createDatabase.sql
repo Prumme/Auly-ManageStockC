@@ -26,10 +26,10 @@ CREATE TABLE History
 );
 
 INSERT INTO test.Product (titre, description, url)
-VALUES ('Corsair QL120 RGB - Noir - 120 mm', 'Ventilateur boitier - PWM - 525 à 1500 RPM - 26 dB - 41.8 CFM',
+VALUES ('QL120 RGB - Noir', 'Ventilateur boitier - PWM - 525 à 1500 RPM - 26 dB - 41.8 CFM',
         'https://www.topachat.com/pages/detail2_cat_est_micro_puis_rubrique_est_w_tu_ven_puis_ref_est_in20000287.html');
 INSERT INTO test.Product (titre, description, url)
-VALUES ('Cooler Master SickleFlow 120 ARGB - 120 mm', 'Ventilateur boitier - PWM - 650 à 1800 RPM - 27 dB - 62 CFM',
+VALUES ('CM SickleFlow 120 ARGB', 'Ventilateur boitier - PWM - 650 à 1800 RPM - 27 dB - 62 CFM',
         'https://www.topachat.com/pages/detail2_cat_est_micro_puis_rubrique_est_w_tu_ven_puis_ref_est_in11018740.html');
 
 INSERT INTO test.Product (titre, description, url)
