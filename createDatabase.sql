@@ -1,5 +1,10 @@
 DROP database test;
 create database test;
+
+=======
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+
 use test;
 CREATE TABLE Product
 (
