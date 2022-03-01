@@ -42,7 +42,7 @@ int isInStock(char *URL, struct string bufferString) {
 
         if (res != 0) {
             printf("\nerreur de curl\n");
-            return 0;
+            return EXIT_FAILURE;
         }
 
         int stock;
@@ -56,26 +56,26 @@ int isInStock(char *URL, struct string bufferString) {
 
         free(bufferString.ptr); // On libère la mémoire accordée à la string
 
-        /* always cleanup */
+        /* On "nettoie" (des free) */
         curl_easy_cleanup(curl);
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-int verifyStockFromBufferTopachat(char *html) {
+int verifyStockFromBufferTopachat(char *curledHtml) {
 
-    int num = 0;
+    int occurrence = 0;
     char stock[] = "class=\"cart-box en-stock\"";
     char stock2[] = "class=\"cart-box en-stock-limite\"";
-    if (strstr(html, stock) != 0) {//if match found
-        num++;
+    if (strstr(curledHtml, stock) != 0) {//if match found
+        occurrence++;
     } else {
-        if (strstr(html, stock2) != 0) {//if match found
-            num++;
+        if (strstr(curledHtml, stock2) != 0) {//if match found
+            occurrence++;
         }
     }
-    printf("we found the word %s in the file %d times\n", stock, num);
-    if (num > 0) {
+    printf("Le mot %s  a été retrouvé dans le buffer %d fois\n", stock, occurrence);
+    if (occurrence > 0) {
         printf("\nIl y avait une occurence !");
         return 1;
     } else {
@@ -84,18 +84,16 @@ int verifyStockFromBufferTopachat(char *html) {
     }
 }
 
-double verifyPriceFromBuffer(char *html) {
+double verifyPriceFromBuffer(char *curledHtml) {
     char price[25] = "\0";
     char *ptr, *ptr1, *ptr2, *ptr3;
-    ptr = strstr(html, "itemprop=\"price\"");
+    ptr = strstr(curledHtml, "itemprop=\"price\"");
     if (ptr) {
         ptr1 = strstr(ptr, "content=\"");
         if (ptr1) {
             ptr2 = strstr(ptr1, "\"");
-            // printf("\n\n %s\n\n", ptr2);
             if (ptr2) {
                 ptr3 = strstr(ptr2 + 1, "\"");
-                // printf("\n\n %s\n\n", ptr3);
                 ptrdiff_t bytes = ((char *) ptr3) - ((char *) ptr2 + 1);
                 printf("\n coucou c %td", bytes);
                 memcpy(price, ptr2 + 1, bytes);

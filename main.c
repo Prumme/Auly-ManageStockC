@@ -6,6 +6,8 @@
 #include "window.h"
 #include <mysql.h>
 #include <string.h>
+#include "bddMethods.h"
+#include "curlBdd.h"
 
 
 //Entrée de text pour le formulaire
@@ -20,12 +22,6 @@ int testCurl(char *url);
 
 //char ** selectMysql();
 void selectMysql();
-
-void finish_with_error(MYSQL *con) {
-    fprintf(stderr, "%s\n", mysql_error(con));
-    mysql_close(con);
-    exit(1);
-}
 
 /* Partie GTK */
 void main_page(int argc, char **argv);
@@ -49,18 +45,23 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
-    char **row;
+    // main_page(argc, argv);
 
+    /*struct string coucou;
+    isInStock(
+            "https://www.topachat.com/pages/detail2_cat_est_ordinateurs_puis_rubrique_est_w_porgam_puis_ref_est_in20007273.html",
+            coucou);*/
 
+    /*char **loli;
+    loli = malloc(4 * sizeof(char *));
+    retrieveProductInfo(1, loli);
+    freeRetrieveProductInfo(loli);*/
 
-    //testCurl("google.fr");
-    //row = selectMysql();
-    //selectMysql();
-
-    main_page(argc, argv);
-
-
-    return 0;
+    char ***historyArray;
+    historyArray = malloc(5 * sizeof(char *));
+    unsigned long rowCount = 0;
+    retrieveProductHistory(2, historyArray, &rowCount);
+    freeProductHistory(historyArray, &rowCount);
 
     return EXIT_SUCCESS;
 
