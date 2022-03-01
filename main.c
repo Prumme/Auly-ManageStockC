@@ -282,14 +282,14 @@ void main_page() {
 
 
     GtkWidget * bodyDiv[rowCount];
-    GtkWidget * bodyLabel[rowCount][4];
+    GtkWidget * bodyLabel[rowCount][5];
     GtkWidget * showMoreBtn[rowCount];
     identifier id[rowCount];
 
     for (unsigned long k = 0; k < rowCount; ++k) {
         bodyDiv[k] = gtk_hbox_new(TRUE, 0);
         gtk_box_pack_start(GTK_BOX(pVBox), bodyDiv[k], FALSE, FALSE, 0);
-        for (int l = 0; l < 4; ++l) {
+        for (int l = 0; l < 5; ++l) {
             switch (l){
                 case 0:
                     id[counter].id = atoi(productList[k][l]);
@@ -303,6 +303,15 @@ void main_page() {
                 case 3:
                     bodyLabel[k][l] = gtk_label_new(strcat(productList[k][l], "€"));
                     gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                    break;
+                case 4:
+                    if(atoi(productList[k][l])){
+                        bodyLabel[k][l] = gtk_label_new("En Stock");
+                        gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                    }else {
+                        bodyLabel[k][l] = gtk_label_new("Rupture");
+                        gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                    }
                     break;
 
             }
