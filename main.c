@@ -9,7 +9,9 @@
 #include "bddMethods.h"
 #include "curlBdd.h"
 
-
+//Variables globales pour le prix
+int language = 0;
+int switchLanguage(int *lang);
 //Entrée de text pour le formulaire
 GtkEntry *entry_url;
 
@@ -49,11 +51,20 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
+    printf("\nNombre d'argument:%d\n", argc);
+    for (int i = 0; i < argc; ++i) {
+        printf("\nArgument %d : %s", i, argv[i]);
 
+    }
+    printf("\n la langue est %d", language);
+    switchLanguage(&language);
+    printf("\n la langue est %d", language);
+
+    refreshLog();
     //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
     gtk_init(&argc, &argv);
 
-    main_page();
+    // main_page();
 
     /*struct string coucou;
     isInStock(
@@ -705,5 +716,34 @@ void go_on(GtkWidget *pWidget, gpointer data){
 
 void OnDestroy(GtkWidget *pWidget, gpointer data) {
     gtk_main_quit;
+
+}
+
+int switchLanguage(int *lang) {
+    char buffer[255];
+    FILE *config = fopen("../config.txt", "r");
+
+    //     On vérifie que l'on ouvre bien le fichier
+    if (config == NULL) {
+        printf("\nErreur il manque le fichier de config\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fseek(config, 0, SEEK_SET);
+    fread(buffer, 255, 1, config);
+    if (strstr(buffer, "langue:fr")){
+        printf("\nLa langue est en francais");
+        *lang = 0;
+    } else{
+        if (strstr(buffer, "langue:en")){
+            printf("\nLa langue est en anglais");
+            *lang = 1;
+        }else{
+            printf("\nErreur dans la lecture de la configuration de la langue, langue par défaut mise sur français.");
+            *lang = 0;
+        }
+    }
+
+    return EXIT_SUCCESS;
 
 }
