@@ -33,8 +33,10 @@ void form(int arc, char **argv);
 void more(GtkWidget *pWidget, gpointer pData);
 
 void delete(GtkWidget *pWidget, gpointer data);
+void modify(GtkWidget *pWidget, gpointer data);
 
-void test(GtkWidget *pWidget, gpointer data);
+void close_window(GtkWidget *pWidget, gpointer data);
+void go_on(GtkWidget *pWidget, gpointer data);
 
 
 void confirm(GtkWidget *pEntry, gpointer data);
@@ -45,7 +47,7 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
-    // main_page(argc, argv);
+    main_page(argc, argv);
 
     /*struct string coucou;
     isInStock(
@@ -57,11 +59,11 @@ int main(int argc, char *argv[]) {
     retrieveProductInfo(1, loli);
     freeRetrieveProductInfo(loli);*/
 
-    char ***historyArray;
+    /*char ***historyArray;
     historyArray = malloc(5 * sizeof(char *));
     unsigned long rowCount = 0;
     retrieveProductHistory(2, historyArray, &rowCount);
-    freeProductHistory(historyArray, &rowCount);
+    freeProductHistory(historyArray, &rowCount);*/
 
     return EXIT_SUCCESS;
 
@@ -176,17 +178,19 @@ void main_page(int argc, char **argv) {
 
     GtkWidget *pHBox;
     GtkWidget *btn;
-    GtkWidget *entry;
     GtkWidget *scrollbar;
 
     char *buffer[255];
     FILE *data = NULL;
-    int c, nbRow = 0, i = 0, j = 0;
-    int c2 = '\0';
+
     int tmp;
     char *token;
 
     unsigned int counter = 0;
+
+    char ***productList;
+            productList = malloc(1);
+    unsigned long rowCount = 0;
 
 
     data = fopen("../data.txt", "r");
@@ -199,25 +203,8 @@ void main_page(int argc, char **argv) {
     label1 = (GtkLabel *) gtk_label_new(NULL);
 
 
-    if (data != NULL) {
-
-        while ((c = fgetc(data)) != EOF) {
-            if (c == '\n')
-                nbRow++;
-            c2 = c;
-        }
-
-        if (c2 != '\n')
-            nbRow++;
-        fclose(data);
-    }
 
 
-    GtkLabel *label[nbRow][3];
-    GtkWidget *pHBoxProduct[nbRow];
-    GtkWidget *btnMore[nbRow];
-
-    identifier id[nbRow * 2];
 
 
     //DEFINITION d'un label avec des classe de style
@@ -240,7 +227,7 @@ void main_page(int argc, char **argv) {
     //Definition de la fenetre + Parametre titre/taille/position/redefinition de la taille
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW (window), "Auly ManageStockC - Liste");
-    gtk_window_set_default_size(GTK_WINDOW (window), 700, 700);
+    gtk_window_set_default_size(GTK_WINDOW (window), 900, 700);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
@@ -257,8 +244,6 @@ void main_page(int argc, char **argv) {
     // ON insert la box verticale dans la box scrollable
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbar), pVBox);
 
-    //Definintion d'un input text
-    entry = gtk_entry_new();
 
 
     // Appelle de la fonction OnDestroy sur le bouton pour fem� la fenetre
@@ -276,50 +261,49 @@ void main_page(int argc, char **argv) {
 
     gtk_box_pack_start(GTK_BOX(pHBox), label1, FALSE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(pHBox), entry, FALSE, FALSE, 0);
+
 
     gtk_box_pack_start(GTK_BOX(pHBox), btn, FALSE, FALSE, 0);
 
 
     //Boucle pour rentrer les infos
 
-    data = fopen("../data.txt", "r");
 
-    if (data != NULL) {
+    retrieveProducts(productList, &rowCount);
 
-        i = 0;
+    GtkWidget * bodyDiv[rowCount];
+    GtkWidget * bodyLabel[rowCount][4];
+    GtkWidget * showMoreBtn[rowCount];
 
+    for (unsigned long k = 0; k < rowCount; ++k) {
+        bodyDiv[k] = gtk_hbox_new(TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(pVBox), bodyDiv[k], FALSE, FALSE, 0);
+        for (int l = 0; l < 4; ++l) {
+            switch (l){
+                case 0:
+                    break;
+                case 1:
+                    bodyLabel[k][l] = gtk_label_new(productList[k][l]);
+                    gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    bodyLabel[k][l] = gtk_label_new(strcat(productList[k][l], "€"));
+                    gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                    break;
 
-        while (fgets(buffer, 255, data)) {
-            token = strtok(buffer, ";");
-
-
-            j = 0;
-
-            pHBoxProduct[i] = gtk_hbox_new(TRUE, 0);
-            gtk_box_pack_start(GTK_BOX(pVBox), pHBoxProduct[i], FALSE, FALSE, 0);
-            while (token != NULL) {
-
-                if (j != 0) {
-                    label[i][j] = gtk_label_new(token);
-
-                    gtk_box_pack_start(GTK_BOX(pHBoxProduct[i]), label[i][j], FALSE, FALSE, 0);
-                    token = strtok(NULL, ";");
-
-                } else {
-                    tmp = atoi(token);
-                    id[counter].id = tmp;
-                }
-                j++;
             }
-            btnMore[i] = gtk_button_new_with_label("...");
-            gtk_box_pack_start(GTK_BOX((pHBoxProduct[i])), btnMore[i], FALSE, FALSE, 0);
-            g_signal_connect(G_OBJECT(btnMore[i]), "pressed", G_CALLBACK(more), &id[counter]);
-            counter++;
-            i++;
+
         }
-        fclose(data);
+        showMoreBtn[k] = gtk_button_new_with_label("...");
+        gtk_box_pack_start(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
+        g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), productList[k][1]);
+
     }
+    freeProductList(productList, &rowCount);
+
+
     //Affiche la window et tous les widget a l'interieur
     gtk_widget_show_all(window);
     //definit la window main
@@ -436,6 +420,8 @@ void more(GtkWidget *button, gpointer data) {
     (void) button;
     identifier *id = data;
 
+    char **rowCopy;
+    rowCopy = malloc(2 * sizeof(char*));
 
     GtkWidget *window;
     GtkWidget *pVBox;
@@ -444,13 +430,26 @@ void more(GtkWidget *button, gpointer data) {
     GtkWidget *title;
     GtkWidget *deleteButton;
     GtkWidget *closeButton;
+    GtkWidget *modifyButton;
     GtkWidget *labelTitle;
+    GtkWidget *labelHeader[3];
+    GtkWidget *divHeader;
     GtkWidget *labelDescription;
+    GtkWidget *goOnBtn;
+    GtkWidget *historyDiv[5];
+    GtkWidget *label[5][5];
+    char ***historyArray;
+    unsigned long rowCount = 0;
+    char * sUtf8;
+
+    historyArray = malloc(5 * sizeof(char *));
 
     entry_description = gtk_entry_new();
-    gtk_entry_set_text(entry_description, "voiture pas chere");
+
     entry_name = gtk_entry_new();
-    gtk_entry_set_text(entry_name, "voiture");
+
+    entry_url = gtk_entry_new();
+
 
     pVBox = gtk_vbox_new(FALSE, 25);
     footer = gtk_hbox_new(TRUE, 25);
@@ -458,6 +457,9 @@ void more(GtkWidget *button, gpointer data) {
 
     deleteButton = gtk_button_new_with_label("Supprimer");
     closeButton = gtk_button_new_with_label("Fermer");
+    modifyButton = gtk_button_new_with_label("Modifier");
+    goOnBtn = gtk_button_new_with_label("Aller à");
+    g_signal_connect(G_OBJECT(goOnBtn), "clicked", G_CALLBACK(go_on), window);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW (window), "Auly ManageStockC - Voir plus");
@@ -473,28 +475,211 @@ void more(GtkWidget *button, gpointer data) {
     gtk_box_pack_start(GTK_BOX(pVBox), modif_div, NULL, NULL, 0);
     gtk_box_pack_start(GTK_BOX(modif_div), entry_name, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(modif_div), entry_description, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pVBox), goOnBtn, NULL, NULL, 0);
+
+
 
     gtk_box_pack_end(GTK_BOX(pVBox), footer, FALSE, TRUE, 15);
 
 
+
+    retrieveOneProductInfo(id->id, rowCopy);
+
+    for (int i = 0; i < 3; ++i) {
+        switch(i){
+            case 0 :
+
+                gtk_entry_set_text(entry_name, rowCopy[i]);
+                break;
+            case 1 :
+
+                gtk_entry_set_text(entry_description, rowCopy[i]);
+                break;
+            case 2 :
+                gtk_entry_set_text(entry_url, rowCopy[i]);
+                break;
+        }
+
+
+        free(rowCopy[i]);
+    }
+    free(rowCopy);
+
+    retrieveProductHistory(id->id, historyArray, &rowCount);
+
+
+
+
+    labelHeader[0] = gtk_label_new(NULL);
+    labelHeader[1] = gtk_label_new(NULL);
+    labelHeader[2] = gtk_label_new(NULL);
+
+    sUtf8 = g_locale_to_utf8(
+            "<u>Prix</u>", -1, NULL,
+            NULL, NULL);
+    gtk_label_set_markup(GTK_LABEL(labelHeader[0]), sUtf8);
+
+    sUtf8 = g_locale_to_utf8(
+            "<u>Status</u>", -1, NULL,
+            NULL, NULL);
+    gtk_label_set_markup(GTK_LABEL(labelHeader[1]), sUtf8);
+
+    sUtf8 = g_locale_to_utf8(
+            "<u>Date</u>", -1, NULL,
+            NULL, NULL);
+    gtk_label_set_markup(GTK_LABEL(labelHeader[2]), sUtf8);
+
+    divHeader = gtk_hbox_new(TRUE, 25);
+
+    gtk_box_pack_start(GTK_BOX(pVBox), divHeader, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(divHeader), labelHeader[0], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(divHeader), labelHeader[1], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(divHeader), labelHeader[2], FALSE, FALSE, 0);
+
+
+    for (unsigned long k = 0; k < rowCount; ++k) {
+        historyDiv[k] = gtk_hbox_new(TRUE, 25);
+       gtk_box_pack_start(GTK_BOX(pVBox), historyDiv[k], FALSE, FALSE, 0);
+
+        for (int l = 0; l < 5; ++l) {
+            switch(l){
+                case 2 :
+                    label[k][l] = gtk_label_new(strcat(historyArray[k][l],"€"));
+                    gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
+                    break;
+                case 3 :
+                    if(atoi(historyArray[k][l])){
+                        label[k][l] = gtk_label_new("En Stock");
+                        gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
+                    }else {
+                        label[k][l] = gtk_label_new("Rupture");
+                        gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
+                    }
+                    break;
+                case 4 :
+                    label[k][l] = gtk_label_new(historyArray[k][l]);
+                    gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
+                    break;
+            }
+
+            free(historyArray[k][l]);
+        }
+    }
+    free(historyArray);
+
+
+
     gtk_box_pack_start(GTK_BOX(footer), deleteButton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(footer), modifyButton, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(footer), closeButton, FALSE, FALSE, 0);
-    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(delete), window);
-    g_signal_connect(G_OBJECT(closeButton), "clicked", G_CALLBACK(delete), window);
-    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(test), "test");
+    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(close_window), window);
+    g_signal_connect(G_OBJECT(closeButton), "clicked", G_CALLBACK(close_window), window);
+    g_signal_connect(G_OBJECT(modifyButton), "clicked", G_CALLBACK(close_window), window);
+    g_signal_connect(G_OBJECT(deleteButton), "clicked", G_CALLBACK(delete), id->id);
+    g_signal_connect(G_OBJECT(modifyButton), "clicked", G_CALLBACK(modify), id->id);
     gtk_widget_show_all(window);
 
 
 }
 
-void delete(GtkWidget *pWidget, gpointer data) {
+void close_window(GtkWidget *pWidget, gpointer data) {
     gtk_window_close(data);
 }
 
-void test(GtkWidget *pWidget, gpointer data) {
-    g_print("%s", data);
+void delete(GtkWidget *pWidget, gpointer data) {
+   MYSQL *con = mysql_init(NULL);
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    char sql[50];
+    sprintf(sql, "DELETE FROM Product WHERE id = %d", data); // On insère l'id dans la string query sql
+    // Exécution d'une requête SQL. Exit avec erreur sinon.
+    if (mysql_query(con, sql)) {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL) {
+        finish_with_error(con);
+    }
+
+    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
+    mysql_free_result(result);
+
+    // On ferme la connexion au serveur
+    mysql_close(con);
 }
 
+void modify(GtkWidget *pWidget, gpointer data) {
+    MYSQL *con = mysql_init(NULL);
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+
+    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    char sql[50];
+    sprintf(sql, "UPDATE Product SET titre = '%s', description = '%s' WHERE id = %d",
+            gtk_entry_get_text(GTK_ENTRY(entry_name)),
+            gtk_entry_get_text(GTK_ENTRY(entry_description)),
+            data);
+    // On insère l'id dans la string query sql
+    // Exécution d'une requête SQL. Exit avec erreur sinon.
+    if (mysql_query(con, sql)) {
+        finish_with_error(con);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL) {
+        finish_with_error(con);
+    }
+
+    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
+    mysql_free_result(result);
+
+    // On ferme la connexion au serveur
+    mysql_close(con);
+}
+
+void go_on(GtkWidget *pWidget, gpointer data){
+
+    char *URL ="xdg-open " ;
+    char *url = gtk_entry_get_text(entry_url);
+    char* res;
+
+    res = malloc(strlen(URL) + strlen(url) + 1);
+    if (!res) {
+        fprintf(stderr, "malloc() failed: insufficient memory!\n");
+
+    }else {
+
+        strcpy(res, URL);
+        strcat(res, url);
+
+
+        system(res);
+        free(res);
+    }
+}
 
 void OnDestroy(GtkWidget *pWidget, gpointer data) {
     gtk_main_quit;
