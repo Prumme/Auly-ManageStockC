@@ -227,7 +227,7 @@ void main_page(int argc, char **argv) {
     //Definition de la fenetre + Parametre titre/taille/position/redefinition de la taille
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW (window), "Auly ManageStockC - Liste");
-    gtk_window_set_default_size(GTK_WINDOW (window), 900, 700);
+    gtk_window_set_default_size(GTK_WINDOW (window), 700, 700);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
@@ -274,6 +274,7 @@ void main_page(int argc, char **argv) {
     GtkWidget * bodyDiv[rowCount];
     GtkWidget * bodyLabel[rowCount][4];
     GtkWidget * showMoreBtn[rowCount];
+    identifier id[rowCount];
 
     for (unsigned long k = 0; k < rowCount; ++k) {
         bodyDiv[k] = gtk_hbox_new(TRUE, 0);
@@ -281,6 +282,7 @@ void main_page(int argc, char **argv) {
         for (int l = 0; l < 4; ++l) {
             switch (l){
                 case 0:
+                    id[counter].id = atoi(productList[k][l]);
                     break;
                 case 1:
                     bodyLabel[k][l] = gtk_label_new(productList[k][l]);
@@ -296,9 +298,10 @@ void main_page(int argc, char **argv) {
             }
 
         }
+
         showMoreBtn[k] = gtk_button_new_with_label("...");
         gtk_box_pack_start(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
-        g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), productList[k][1]);
+        g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), &id[counter].id);
 
     }
     freeProductList(productList, &rowCount);
