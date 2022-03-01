@@ -11,7 +11,9 @@
 
 //Variables globales pour le prix
 int language = 0;
+
 int switchLanguage(int *lang);
+
 //Entrée de text pour le formulaire
 GtkEntry *entry_url;
 
@@ -37,9 +39,11 @@ void refresh_page(GtkWidget *pWidget, gpointer pData);
 void more(GtkWidget *pWidget, gpointer pData);
 
 void delete(GtkWidget *pWidget, gpointer data);
+
 void modify(GtkWidget *pWidget, gpointer data);
 
 void close_window(GtkWidget *pWidget, gpointer data);
+
 void go_on(GtkWidget *pWidget, gpointer data);
 
 
@@ -64,7 +68,7 @@ int main(int argc, char *argv[]) {
     //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
     gtk_init(&argc, &argv);
 
-    // main_page();
+    main_page();
 
     /*struct string coucou;
     isInStock(
@@ -207,7 +211,7 @@ void main_page() {
     unsigned int counter = 0;
 
     char ***productList;
-            productList = malloc(1);
+    productList = malloc(1);
     unsigned long rowCount = 0;
 
 
@@ -225,10 +229,23 @@ void main_page() {
 
 
     //DEFINITION d'un label avec des classe de style
-    sUtf8 = g_locale_to_utf8(
-            "<span font_desc=\"Times New Roman 16\" foreground=\"#880000\"><u>Liste des produits</u></span>", -1, NULL,
-            NULL, NULL);
-    gtk_label_set_markup(GTK_LABEL(label1), sUtf8);
+    switch (language) {
+        case 0:
+            sUtf8 = g_locale_to_utf8(
+                    "<span font_desc=\"Times New Roman 16\" foreground=\"#880000\"><u>Liste des produits</u></span>",
+                    -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(label1), sUtf8);
+            break;
+        case 1:
+            sUtf8 = g_locale_to_utf8(
+                    "<span font_desc=\"Times New Roman 16\" foreground=\"#880000\"><u>Product List</u></span>", -1,
+                    NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(label1), sUtf8);
+            break;
+    }
+
 
     // ON a mis les info de stUtf8 dasn le label1 on peut donc l'effacer
     g_free(sUtf8);
@@ -267,11 +284,31 @@ void main_page() {
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(OnDestroy), NULL);
 
     //Creation d'un bouton avec label
-    btn = gtk_button_new_with_label("Ajouter un produit");
+    switch (language) {
+        case 0:
+            btn = gtk_button_new_with_label("Ajouter un produit");
+            break;
+        case 1:
+            btn = gtk_button_new_with_label("Add a product");
+            break;
+        default:
+            btn = gtk_button_new_with_label("Ajouter un produit");
+            break;
+    }
     //Appelle de la fonction go to form
     g_signal_connect(G_OBJECT(btn), "clicked", G_CALLBACK(form), NULL);
 
-    refresh = gtk_button_new_with_label("rafraichir");
+    switch (language) {
+        case 0:
+            refresh = gtk_button_new_with_label("rafraichir");
+            break;
+        case 1:
+            refresh = gtk_button_new_with_label("Refresh");
+            break;
+        default:
+            refresh = gtk_button_new_with_label("rafraichir");
+            break;
+    }
     g_signal_connect(G_OBJECT(refresh), "clicked", G_CALLBACK(refresh_page), window);
 
 
@@ -292,16 +329,16 @@ void main_page() {
     retrieveProducts(productList, &rowCount);
 
 
-    GtkWidget * bodyDiv[rowCount];
-    GtkWidget * bodyLabel[rowCount][4];
-    GtkWidget * showMoreBtn[rowCount];
+    GtkWidget *bodyDiv[rowCount];
+    GtkWidget *bodyLabel[rowCount][4];
+    GtkWidget *showMoreBtn[rowCount];
     identifier id[rowCount];
 
     for (unsigned long k = 0; k < rowCount; ++k) {
         bodyDiv[k] = gtk_hbox_new(TRUE, 0);
         gtk_box_pack_start(GTK_BOX(pVBox), bodyDiv[k], FALSE, FALSE, 0);
         for (int l = 0; l < 4; ++l) {
-            switch (l){
+            switch (l) {
                 case 0:
                     id[counter].id = atoi(productList[k][l]);
                     break;
@@ -384,11 +421,29 @@ void form(int argc, char **argv) {
     entry_url = gtk_entry_new();
     entry_description = gtk_entry_new();
 
-    labelDescription = gtk_label_new("Description");
-    labelName = gtk_label_new("Nom");
-    labelUrl = gtk_label_new("Url");
+    switch (language) {
+        case 0:
+            labelDescription = gtk_label_new("Description");
+            labelName = gtk_label_new("Nom");
+            labelUrl = gtk_label_new("Url");
 
-    confirmBtn = gtk_button_new_with_label("Confirmer");
+            confirmBtn = gtk_button_new_with_label("Confirmer");
+            break;
+        case 1:
+            labelDescription = gtk_label_new("Description");
+            labelName = gtk_label_new("Name");
+            labelUrl = gtk_label_new("Url");
+
+            confirmBtn = gtk_button_new_with_label("Confirm");
+            break;
+        default:
+            labelDescription = gtk_label_new("Description");
+            labelName = gtk_label_new("Nom");
+            labelUrl = gtk_label_new("Url");
+
+            confirmBtn = gtk_button_new_with_label("Confirmer");
+            break;
+    }
 
     gtk_box_pack_start(GTK_BOX(pVBox1), pHBox1, TRUE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(pVBox1), pHBox2, TRUE, FALSE, 0);
@@ -446,7 +501,7 @@ void more(GtkWidget *button, gpointer data) {
     identifier *id = data;
 
     char **rowCopy;
-    rowCopy = malloc(2 * sizeof(char*));
+    rowCopy = malloc(2 * sizeof(char *));
 
     GtkWidget *window;
     GtkWidget *pVBox;
@@ -465,7 +520,7 @@ void more(GtkWidget *button, gpointer data) {
     GtkWidget *label[5][5];
     char ***historyArray;
     unsigned long rowCount = 0;
-    char * sUtf8;
+    char *sUtf8;
 
     historyArray = malloc(5 * sizeof(char *));
 
@@ -480,10 +535,26 @@ void more(GtkWidget *button, gpointer data) {
     footer = gtk_hbox_new(TRUE, 25);
     modif_div = gtk_hbox_new(TRUE, 25);
 
-    deleteButton = gtk_button_new_with_label("Supprimer");
-    closeButton = gtk_button_new_with_label("Fermer");
-    modifyButton = gtk_button_new_with_label("Modifier");
-    goOnBtn = gtk_button_new_with_label("Aller à");
+    switch (language) {
+        case 0:
+            deleteButton = gtk_button_new_with_label("Supprimer");
+            closeButton = gtk_button_new_with_label("Fermer");
+            modifyButton = gtk_button_new_with_label("Modifier");
+            goOnBtn = gtk_button_new_with_label("Ouvrir dans le navigateur");
+            break;
+        case 1:
+            deleteButton = gtk_button_new_with_label("Delete");
+            closeButton = gtk_button_new_with_label("Close");
+            modifyButton = gtk_button_new_with_label("Modify");
+            goOnBtn = gtk_button_new_with_label("Open in browser");
+            break;
+        default:
+            deleteButton = gtk_button_new_with_label("Supprimer");
+            closeButton = gtk_button_new_with_label("Fermer");
+            modifyButton = gtk_button_new_with_label("Modifier");
+            goOnBtn = gtk_button_new_with_label("Ouvrir dans le navigateur");
+            break;
+    }
     g_signal_connect(G_OBJECT(goOnBtn), "clicked", G_CALLBACK(go_on), window);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -503,15 +574,13 @@ void more(GtkWidget *button, gpointer data) {
     gtk_box_pack_start(GTK_BOX(pVBox), goOnBtn, NULL, NULL, 0);
 
 
-
     gtk_box_pack_end(GTK_BOX(pVBox), footer, FALSE, TRUE, 15);
-
 
 
     retrieveOneProductInfo(id->id, rowCopy);
 
     for (int i = 0; i < 3; ++i) {
-        switch(i){
+        switch (i) {
             case 0 :
 
                 gtk_entry_set_text(entry_name, rowCopy[i]);
@@ -533,26 +602,61 @@ void more(GtkWidget *button, gpointer data) {
     retrieveProductHistory(id->id, historyArray, &rowCount);
 
 
-
-
     labelHeader[0] = gtk_label_new(NULL);
     labelHeader[1] = gtk_label_new(NULL);
     labelHeader[2] = gtk_label_new(NULL);
 
-    sUtf8 = g_locale_to_utf8(
-            "<u>Prix</u>", -1, NULL,
-            NULL, NULL);
-    gtk_label_set_markup(GTK_LABEL(labelHeader[0]), sUtf8);
+    switch (language) {
+        case 0:
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Prix</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[0]), sUtf8);
 
-    sUtf8 = g_locale_to_utf8(
-            "<u>Status</u>", -1, NULL,
-            NULL, NULL);
-    gtk_label_set_markup(GTK_LABEL(labelHeader[1]), sUtf8);
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Status</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[1]), sUtf8);
 
-    sUtf8 = g_locale_to_utf8(
-            "<u>Date</u>", -1, NULL,
-            NULL, NULL);
-    gtk_label_set_markup(GTK_LABEL(labelHeader[2]), sUtf8);
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Date</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[2]), sUtf8);
+            break;
+        case 1:
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Price</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[0]), sUtf8);
+
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Status</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[1]), sUtf8);
+
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Date</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[2]), sUtf8);
+            break;
+        default:
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Prix</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[0]), sUtf8);
+
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Status</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[1]), sUtf8);
+
+            sUtf8 = g_locale_to_utf8(
+                    "<u>Date</u>", -1, NULL,
+                    NULL, NULL);
+            gtk_label_set_markup(GTK_LABEL(labelHeader[2]), sUtf8);
+            break;
+    }
+
 
     divHeader = gtk_hbox_new(TRUE, 25);
 
@@ -564,19 +668,19 @@ void more(GtkWidget *button, gpointer data) {
 
     for (unsigned long k = 0; k < rowCount; ++k) {
         historyDiv[k] = gtk_hbox_new(TRUE, 25);
-       gtk_box_pack_start(GTK_BOX(pVBox), historyDiv[k], FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(pVBox), historyDiv[k], FALSE, FALSE, 0);
 
         for (int l = 0; l < 5; ++l) {
-            switch(l){
+            switch (l) {
                 case 2 :
-                    label[k][l] = gtk_label_new(strcat(historyArray[k][l],"€"));
+                    label[k][l] = gtk_label_new(strcat(historyArray[k][l], "€"));
                     gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
                     break;
                 case 3 :
-                    if(atoi(historyArray[k][l])){
+                    if (atoi(historyArray[k][l])) {
                         label[k][l] = gtk_label_new("En Stock");
                         gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
-                    }else {
+                    } else {
                         label[k][l] = gtk_label_new("Rupture");
                         gtk_box_pack_start(GTK_BOX(historyDiv[k]), label[k][l], FALSE, FALSE, 0);
                     }
@@ -591,7 +695,6 @@ void more(GtkWidget *button, gpointer data) {
         }
     }
     free(historyArray);
-
 
 
     gtk_box_pack_start(GTK_BOX(footer), deleteButton, FALSE, FALSE, 0);
@@ -619,7 +722,7 @@ void refresh_page(GtkWidget *pWidget, gpointer data) {
 
 
 void delete(GtkWidget *pWidget, gpointer data) {
-   MYSQL *con = mysql_init(NULL);
+    MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
         exit(1);
@@ -693,17 +796,17 @@ void modify(GtkWidget *pWidget, gpointer data) {
     mysql_close(con);
 }
 
-void go_on(GtkWidget *pWidget, gpointer data){
+void go_on(GtkWidget *pWidget, gpointer data) {
 
-    char *URL ="xdg-open " ;
+    char *URL = "xdg-open ";
     char *url = gtk_entry_get_text(entry_url);
-    char* res;
+    char *res;
 
     res = malloc(strlen(URL) + strlen(url) + 1);
     if (!res) {
         fprintf(stderr, "malloc() failed: insufficient memory!\n");
 
-    }else {
+    } else {
 
         strcpy(res, URL);
         strcat(res, url);
@@ -731,14 +834,14 @@ int switchLanguage(int *lang) {
 
     fseek(config, 0, SEEK_SET);
     fread(buffer, 255, 1, config);
-    if (strstr(buffer, "langue:fr")){
+    if (strstr(buffer, "langue:fr")) {
         printf("\nLa langue est en francais");
         *lang = 0;
-    } else{
-        if (strstr(buffer, "langue:en")){
+    } else {
+        if (strstr(buffer, "langue:en")) {
             printf("\nLa langue est en anglais");
             *lang = 1;
-        }else{
+        } else {
             printf("\nErreur dans la lecture de la configuration de la langue, langue par défaut mise sur français.");
             *lang = 0;
         }
