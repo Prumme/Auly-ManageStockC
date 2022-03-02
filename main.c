@@ -14,6 +14,10 @@ int language = 0;
 
 int switchLanguage(int *lang);
 
+// D"claration de la fonction commandline
+int commandLine();
+int showProductsCL();
+
 //Entrée de text pour le formulaire
 GtkEntry *entry_url;
 
@@ -55,36 +59,29 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
+    bool commandLineExit = 0;
     printf("\nNombre d'argument:%d\n", argc);
     for (int i = 0; i < argc; ++i) {
         printf("\nArgument %d : %s", i, argv[i]);
+        if(strstr(argv[i], "commandLine")){
+            printf("\nil veut de casser\n");
+            commandLineExit = 1;
+        }
 
     }
-    printf("\n la langue est %d", language);
     switchLanguage(&language);
-    printf("\n la langue est %d", language);
 
-    refreshLog();
+    if (commandLineExit){
+        commandLine();
+        exit(EXIT_SUCCESS);
+    }
+
     //TRES IMPORTANT (Permet de faire fonctionner les fonction de gtk)
     gtk_init(&argc, &argv);
 
     main_page();
+    showProductsCL();
 
-    /*struct string coucou;
-    isInStock(
-            "https://www.topachat.com/pages/detail2_cat_est_ordinateurs_puis_rubrique_est_w_porgam_puis_ref_est_in20007273.html",
-            coucou);*/
-
-    /*char **loli;
-    loli = malloc(4 * sizeof(char *));
-    retrieveProductInfo(1, loli);
-    freeRetrieveProductInfo(loli);*/
-
-    /*char ***historyArray;
-    historyArray = malloc(5 * sizeof(char *));
-    unsigned long rowCount = 0;
-    retrieveProductHistory(2, historyArray, &rowCount);
-    freeProductHistory(historyArray, &rowCount);*/
 
     return EXIT_SUCCESS;
 
@@ -849,4 +846,55 @@ int switchLanguage(int *lang) {
 
     return EXIT_SUCCESS;
 
+}
+
+int commandLine() {
+    int choice = -1;
+    bool endIt = false;
+    printf("Hello, World (et Monsieur Sananes)!\n");
+
+    printf("\n Que voulez-vous faire ?");
+
+    do {
+        printf("\n\nMenu Principal\n\n");
+        printf("    1. Afficher la liste des produits \n");
+        printf("    2. Mettre à jour le statut des produits \n");
+        printf("    3. Exit\n");
+        scanf("%d", &choice);
+        fflush(stdin);
+        switch (choice) {
+            case 1:
+                printf("\nVoici la liste des produits\n");
+                showProductsCL();
+                break;
+            case 2:
+                printf("\nRafraichissement des informations en base de données\n");
+                refreshLog();
+                break;
+            case 3:
+                printf("Triste que vous partiez...\n");
+                endIt = true;
+                break;
+            default:
+                printf("Mauvais choix, réessayez\n");
+                break;
+        }
+    } while (!endIt);
+
+    printf("\n\nFin du programme bye bye hehehehehe\n");
+    return 0;
+}
+
+int showProductsCL(){
+    char ***productList = malloc(1);
+    unsigned long rowCount = 0;
+    char stock[] = "En stock";
+    char stock1[] = "Pas en stock";
+    retrieveProducts(productList, &rowCount);
+    for (int i = 0; i < rowCount; ++i) {
+        printf("\n      %s : prix:%s, status: %s, mis à jour le %s", productList[i][1],productList[i][3],productList[i][4]?stock:stock1,productList[i][2]);
+        printf("\n");
+    }
+    freeProductList(productList, &rowCount);
+    return EXIT_SUCCESS;
 }
