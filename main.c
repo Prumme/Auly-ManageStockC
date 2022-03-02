@@ -213,7 +213,7 @@ void main_page() {
 
 
     GtkWidget *bodyDiv[rowCount];
-    GtkWidget *bodyLabel[rowCount][4];
+    GtkWidget * bodyLabel[rowCount][5];
     GtkWidget *showMoreBtn[rowCount];
     identifier id[rowCount];
 
@@ -688,8 +688,9 @@ void modify(GtkWidget *pWidget, gpointer data) {
 
     MYSQL_RES *result = mysql_store_result(con);
 
-    if (result == NULL) {
+    if (result != NULL) {
         finish_with_error(con);
+
     }
 
     // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
@@ -834,16 +835,16 @@ int showProductsCL() {
     char stock1EN[] = "Out of stock";
     retrieveProducts(productList, &rowCount);
     for (int i = 0; i < rowCount; ++i) {
-            if (language == 1) {
-                printf("\n      %s : price:%s, status: %s, updated on %s", productList[i][1], productList[i][3],
-                       productList[i][4] ? stockEN : stock1EN, productList[i][2]);
-                printf("\n");
-            } else {
-                printf("\n      %s : prix:%s, status: %s, mis à jour le %s", productList[i][1], productList[i][3],
-                       productList[i][4] ? stock : stock1, productList[i][2]);
-                printf("\n");
-            }
+        if (language == 1) {
+            printf("\n      %s : price:%s, status: %s, updated on %s", productList[i][1], productList[i][3],
+                   productList[i][4] ? stockEN : stock1EN, productList[i][2]);
+            printf("\n");
+        } else {
+            printf("\n      %s : prix:%s, status: %s, mis à jour le %s", productList[i][1], productList[i][3],
+                   productList[i][4] ? stock : stock1, productList[i][2]);
+            printf("\n");
         }
+    }
 
 
     freeProductList(productList, &rowCount);
