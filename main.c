@@ -280,7 +280,7 @@ void main_page() {
 
     retrieveProducts(productList, &rowCount);
 
-
+    if(rowCount !=0){
     GtkWidget * bodyDiv[rowCount];
     GtkWidget * bodyLabel[rowCount][5];
     GtkWidget * showMoreBtn[rowCount];
@@ -290,7 +290,7 @@ void main_page() {
         bodyDiv[k] = gtk_hbox_new(TRUE, 0);
         gtk_box_pack_start(GTK_BOX(pVBox), bodyDiv[k], FALSE, FALSE, 0);
         for (int l = 0; l < 5; ++l) {
-            switch (l){
+            switch (l) {
                 case 0:
                     id[counter].id = atoi(productList[k][l]);
                     showMoreBtn[k] = gtk_button_new_with_label("...");
@@ -308,17 +308,17 @@ void main_page() {
                     gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
                     break;
                 case 4:
-                    if(atoi(productList[k][l])){
+                    if (atoi(productList[k][l])) {
                         bodyLabel[k][l] = gtk_label_new("En Stock");
                         gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
-                    }else {
+                    } else {
                         bodyLabel[k][l] = gtk_label_new("Rupture");
                         gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
                     }
                     break;
 
             }
-        counter++;
+            counter++;
         }
 
 
@@ -327,6 +327,7 @@ void main_page() {
 
     }
     freeProductList(productList, &rowCount);
+    }
 
 
     //Affiche la window et tous les widget a l'interieur

@@ -25,6 +25,8 @@ CREATE TABLE History
 
 );
 
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
 INSERT INTO test.Product (titre, description, url)
 VALUES ('QL120 RGB - Noir', 'Ventilateur boitier - PWM - 525 à 1500 RPM - 26 dB - 41.8 CFM',
         'https://www.topachat.com/pages/detail2_cat_est_micro_puis_rubrique_est_w_tu_ven_puis_ref_est_in20000287.html');
