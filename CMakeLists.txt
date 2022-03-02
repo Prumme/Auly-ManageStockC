@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 project(Projet)
 
 set(CMAKE_C_STANDARD 99)
@@ -33,6 +33,10 @@ message(STATUS "libmysql library dirs: " ${libmysql_LIBRARY_DIRS})
 message(STATUS "libmysql clflags: " ${libmysql_CFLAGS_OTHER})
 message(STATUS "")
 
+file(COPY config.txt DESTINATION ${CMAKE_BINARY_DIR})
+
+
 add_executable(Projet main.c curlBdd.c curlBdd.h bddMethods.c bddMethods.h)
+
 
 target_link_libraries(Projet ${GTK3_LIBRARIES} ${CURL_LIBRARIES} /usr/lib/x86_64-linux-gnu/libmysqlclient.so.21)

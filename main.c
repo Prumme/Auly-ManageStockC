@@ -213,7 +213,7 @@ void main_page() {
 
 
     GtkWidget *bodyDiv[rowCount];
-    GtkWidget * bodyLabel[rowCount][5];
+    GtkWidget *bodyLabel[rowCount][5];
     GtkWidget *showMoreBtn[rowCount];
     identifier id[rowCount];
 
@@ -834,6 +834,15 @@ int showProductsCL() {
     char stockEN[] = "In stock";
     char stock1EN[] = "Out of stock";
     retrieveProducts(productList, &rowCount);
+    if (rowCount == 0) {
+        if (language == 1) {
+            printf("\n      No products to show.");
+            printf("\n");
+        } else {
+            printf("\n      Aucun produit à montrer.");
+            printf("\n");
+        }
+    }
     for (int i = 0; i < rowCount; ++i) {
         if (language == 1) {
             printf("\n      %s : price:%s, status: %s, updated on %s", productList[i][1], productList[i][3],
