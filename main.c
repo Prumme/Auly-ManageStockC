@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include "window.h"
 #include <mysql.h>
 #include <string.h>
 #include "bddMethods.h"
