@@ -16,6 +16,7 @@ int switchLanguage(int *lang);
 
 // D"claration de la fonction commandline
 int commandLine();
+
 int showProductsCL();
 
 //Entrée de text pour le formulaire
@@ -24,12 +25,6 @@ GtkEntry *entry_url;
 GtkEntry *entry_description;
 GtkEntry *entry_name;
 int id;
-
-
-int testCurl(char *url);
-
-//char ** selectMysql();
-void selectMysql();
 
 /* Partie GTK */
 void main_page();
@@ -59,19 +54,17 @@ typedef struct _identifier {
 } identifier;
 
 int main(int argc, char *argv[]) {
+    switchLanguage(&language);
+
     bool commandLineExit = 0;
-    printf("\nNombre d'argument:%d\n", argc);
     for (int i = 0; i < argc; ++i) {
-        printf("\nArgument %d : %s", i, argv[i]);
-        if(strstr(argv[i], "commandLine")){
-            printf("\nil veut de casser\n");
+        if (strstr(argv[i], "commandLine")) {
             commandLineExit = 1;
         }
 
     }
-    switchLanguage(&language);
 
-    if (commandLineExit){
+    if (commandLineExit) {
         commandLine();
         exit(EXIT_SUCCESS);
     }
@@ -86,105 +79,6 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 
 }
-
-int testCurl(char *url) {
-    CURL *curl;
-    CURLcode res;
-
-    curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
-        /* example.com is redirected, so we tell libcurl to follow redirection */
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-        /* create an output file and prepare to write the response */
-        FILE *output_file = fopen("output_file.html", "w");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, output_file);
-
-        /* Perform the request, res will get the return code */
-        res = curl_easy_perform(curl);
-
-        /* Check for errors */
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %sn",
-                    curl_easy_strerror(res));
-        }
-
-        /* always cleanup */
-        curl_easy_cleanup(curl);
-    }
-    return 0;
-}
-
-/**
- * Fonction test qui récupère les informations en bdd.
- */
-//char** selectMysql() {
-void selectMysql() {
-    MYSQL *con = mysql_init(NULL);
-    char *ptr = (char *) malloc(255 * 10 * 4 * sizeof(char));
-
-    if (con == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
-        exit(1);
-    }
-
-    // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
-    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
-                           "test", 0, NULL, 0) == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
-        mysql_close(con);
-        exit(1);
-    }
-
-    // Exécution d'une requête SQL. Exit avec erreur sinon.
-    if (mysql_query(con, "SELECT * FROM Product")) {
-        finish_with_error(con);
-    }
-
-    MYSQL_RES *result = mysql_store_result(con);
-
-    if (result == NULL) {
-        finish_with_error(con);
-    }
-
-    // Renvoie le nombre de colonnes de la table (pas le nombre de lignes bellec)
-    int num_fields = mysql_num_fields(result);
-
-    MYSQL_ROW row;
-
-    printf("\n\nNombre de colonnes : %d\n", num_fields);
-
-    printf("\nID | titre | description | url \n");
-
-    // mysql_fetch_row fonctionne comme en PHP, chaque call de la fonction récupère la ligne suivante dans le résultat (result)
-    while ((row = mysql_fetch_row(result))) {
-        // La ligne existe sous forme de array donc on itère pour récupérer.
-        for (int i = 0; i < num_fields; i++) {
-            printf("%s | ", row[i] ? row[i] : "NULL");
-            //    *(ptr+i) = row[i] ? row[i] : "NULL";
-        }
-
-
-        printf("\n");
-    }
-
-
-
-    // J'imagine qu'on free la mémoire prise par tous les mallocs des fonctions mysql pour stocker les strings
-    mysql_free_result(result);
-
-    printf("\nMySQL client version: %s\n", mysql_get_client_info());
-
-
-    // On ferme la connexion au serveur
-    mysql_close(con);
-    //  return ptr;
-
-
-}
-
 
 /* Partie GTK */
 void main_page() {
@@ -214,16 +108,8 @@ void main_page() {
 
     data = fopen("../data.txt", "r");
 
-
-
-
     //DEFINITION DE VARIABLE LABEL (gtk label new permet de cr�er un label avec un string)
     label1 = (GtkLabel *) gtk_label_new(NULL);
-
-
-
-
-
 
     //DEFINITION d'un label avec des classe de style
     switch (language) {
@@ -334,10 +220,13 @@ void main_page() {
     for (unsigned long k = 0; k < rowCount; ++k) {
         bodyDiv[k] = gtk_hbox_new(TRUE, 0);
         gtk_box_pack_start(GTK_BOX(pVBox), bodyDiv[k], FALSE, FALSE, 0);
-        for (int l = 0; l < 4; ++l) {
+        for (int l = 0; l < 5; ++l) {
             switch (l) {
                 case 0:
                     id[counter].id = atoi(productList[k][l]);
+                    showMoreBtn[k] = gtk_button_new_with_label("...");
+                    g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), &id[counter].id);
+                    gtk_box_pack_end(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
                     break;
                 case 1:
                     bodyLabel[k][l] = gtk_label_new(productList[k][l]);
@@ -349,14 +238,30 @@ void main_page() {
                     bodyLabel[k][l] = gtk_label_new(strcat(productList[k][l], "€"));
                     gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
                     break;
+                case 4:
+                    if (language == 1) {
+                        if (atoi(productList[k][l])) {
+                            bodyLabel[k][l] = gtk_label_new("In stock");
+                            gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                        } else {
+                            bodyLabel[k][l] = gtk_label_new("Out of stock");
+                            gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                        }
+                    } else {
+                        if (atoi(productList[k][l])) {
+                            bodyLabel[k][l] = gtk_label_new("En Stock");
+                            gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                        } else {
+                            bodyLabel[k][l] = gtk_label_new("Rupture");
+                            gtk_box_pack_start(GTK_BOX(bodyDiv[k]), bodyLabel[k][l], FALSE, FALSE, 0);
+                        }
+                    }
+                    break;
 
             }
-
+            counter++;
         }
 
-        showMoreBtn[k] = gtk_button_new_with_label("...");
-        gtk_box_pack_start(GTK_BOX(bodyDiv[k]), showMoreBtn[k], FALSE, FALSE, 0);
-        g_signal_connect(G_OBJECT(showMoreBtn[k]), "clicked", G_CALLBACK(more), &id[counter].id);
 
     }
     freeProductList(productList, &rowCount);
@@ -712,6 +617,7 @@ void close_window(GtkWidget *pWidget, gpointer data) {
 }
 
 void refresh_page(GtkWidget *pWidget, gpointer data) {
+    refreshLog(language);
     gtk_window_close(data);
     main_page();
 
@@ -821,25 +727,26 @@ void OnDestroy(GtkWidget *pWidget, gpointer data) {
 
 int switchLanguage(int *lang) {
     char buffer[255];
-    FILE *config = fopen("../config.txt", "r");
+    FILE *config = fopen("./config.txt", "r");
 
     //     On vérifie que l'on ouvre bien le fichier
     if (config == NULL) {
         printf("\nErreur il manque le fichier de config\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     fseek(config, 0, SEEK_SET);
     fread(buffer, 255, 1, config);
     if (strstr(buffer, "langue:fr")) {
-        printf("\nLa langue est en francais");
+        printf("\nLangue mise en français\n");
         *lang = 0;
     } else {
         if (strstr(buffer, "langue:en")) {
-            printf("\nLa langue est en anglais");
+            printf("\nLanguage set to english\n");
             *lang = 1;
         } else {
-            printf("\nErreur dans la lecture de la configuration de la langue, langue par défaut mise sur français.");
+            printf("\nErreur dans la lecture de la configuration de la langue, langue par défaut (français).\n");
+            printf("\nError in reading the configuration file. Language set to default (french.\n");
             *lang = 0;
         }
     }
@@ -851,50 +758,94 @@ int switchLanguage(int *lang) {
 int commandLine() {
     int choice = -1;
     bool endIt = false;
-    printf("Hello, World (et Monsieur Sananes)!\n");
+    if (language == 1) {
+        printf("Hello, World (and Senora Sananes)!\n");
 
-    printf("\n Que voulez-vous faire ?");
+        printf("\n WHat would you like to do ?");
 
-    do {
-        printf("\n\nMenu Principal\n\n");
-        printf("    1. Afficher la liste des produits \n");
-        printf("    2. Mettre à jour le statut des produits \n");
-        printf("    3. Exit\n");
-        scanf("%d", &choice);
-        fflush(stdin);
-        switch (choice) {
-            case 1:
-                printf("\nVoici la liste des produits\n");
-                showProductsCL();
-                break;
-            case 2:
-                printf("\nRafraichissement des informations en base de données\n");
-                refreshLog();
-                break;
-            case 3:
-                printf("Triste que vous partiez...\n");
-                endIt = true;
-                break;
-            default:
-                printf("Mauvais choix, réessayez\n");
-                break;
-        }
-    } while (!endIt);
+        do {
+            printf("\n\nMain Menu\n\n");
+            printf("    1. Show the product list \n");
+            printf("    2. Update the current products' status \n");
+            printf("    3. Exit\n");
+            scanf("%d", &choice);
+            fflush(stdin);
+            switch (choice) {
+                case 1:
+                    printf("\nHere is the list of products\n");
+                    showProductsCL();
+                    break;
+                case 2:
+                    printf("\nUpdating the informations of the products in the database\n");
+                    refreshLog(language);
+                    break;
+                case 3:
+                    printf("Sad to see you leave king...\n");
+                    endIt = true;
+                    break;
+                default:
+                    printf("Wrong choice, TRY AGAIN!\n");
+                    break;
+            }
+        } while (!endIt);
+    } else {
+        printf("Hello, World (et Monsieur Sananes)!\n");
+
+        printf("\n Que voulez-vous faire ?");
+
+        do {
+            printf("\n\nMenu Principal\n\n");
+            printf("    1. Afficher la liste des produits \n");
+            printf("    2. Mettre à jour le statut des produits \n");
+            printf("    3. Exit\n");
+            scanf("%d", &choice);
+            fflush(stdin);
+            switch (choice) {
+                case 1:
+                    printf("\nVoici la liste des produits\n");
+                    showProductsCL();
+                    break;
+                case 2:
+                    printf("\nRafraichissement des informations en base de données\n");
+                    refreshLog(language);
+                    break;
+                case 3:
+                    printf("Triste que vous partiez...\n");
+                    endIt = true;
+                    break;
+                default:
+                    printf("Mauvais choix, réessayez\n");
+                    break;
+            }
+        } while (!endIt);
+    }
+
 
     printf("\n\nFin du programme bye bye hehehehehe\n");
     return 0;
 }
 
-int showProductsCL(){
+int showProductsCL() {
     char ***productList = malloc(1);
     unsigned long rowCount = 0;
     char stock[] = "En stock";
     char stock1[] = "Pas en stock";
+    char stockEN[] = "In stock";
+    char stock1EN[] = "Out of stock";
     retrieveProducts(productList, &rowCount);
     for (int i = 0; i < rowCount; ++i) {
-        printf("\n      %s : prix:%s, status: %s, mis à jour le %s", productList[i][1],productList[i][3],productList[i][4]?stock:stock1,productList[i][2]);
-        printf("\n");
-    }
+            if (language == 1) {
+                printf("\n      %s : price:%s, status: %s, updated on %s", productList[i][1], productList[i][3],
+                       productList[i][4] ? stockEN : stock1EN, productList[i][2]);
+                printf("\n");
+            } else {
+                printf("\n      %s : prix:%s, status: %s, mis à jour le %s", productList[i][1], productList[i][3],
+                       productList[i][4] ? stock : stock1, productList[i][2]);
+                printf("\n");
+            }
+        }
+
+
     freeProductList(productList, &rowCount);
     return EXIT_SUCCESS;
 }

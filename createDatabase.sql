@@ -24,7 +24,7 @@ CREATE TABLE History
     FOREIGN KEY (id_product) REFERENCES Product (id) ON DELETE CASCADE
 
 );
-
+/*
 INSERT INTO test.Product (titre, description, url)
 VALUES ('QL120 RGB - Noir', 'Ventilateur boitier - PWM - 525 à 1500 RPM - 26 dB - 41.8 CFM',
         'https://www.topachat.com/pages/detail2_cat_est_micro_puis_rubrique_est_w_tu_ven_puis_ref_est_in20000287.html');
@@ -92,4 +92,4 @@ FROM Product
      on q.id_product = H.id_product AND q.Maxdate = H.timestamp;*/
 
 
-# SELECT Product.id, Product.titre, H.timestamp, H.price, H.status FROM Product INNER JOIN History H ON Product.id = H.id_product INNER JOIN ( SELECT id, id_product, price, status, MAX(timestamp) Maxdate FROM History GROUP BY id_product ) q on q.id_product = H.id_product AND q.Maxdate = H.timestamp;
+# SELECT Product.id, Product.titre, H.timestamp, H.price, H.status FROM Product INNER JOIN History H ON Product.id = H.id_product INNER JOIN ( SELECT id, id_product, price, status, MAX(timestamp) Maxdate FROM History GROUP BY id_product ) q on q.id_product = H.id_product AND q.Maxdate = H.timestamp;*/

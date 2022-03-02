@@ -122,20 +122,29 @@ int logHistoryBdd(int id, double price, int inStock) {
     }
 
     // Exécution d'une requête SQL. Exit avec erreur sinon.
+    char priceString[50];
+    snprintf(priceString, 50, "%f", price);
+
+    char *commaPosition = NULL;
+    while (commaPosition = strpbrk(priceString, ",")) { //find the first dot in input
+        *commaPosition = '.'; //replace the dot with a comma
+    }
+
     char query[2000];
-    sprintf(query, "INSERT INTO History(id_product, price, status) VALUES (%d, %f, %d)", id, price, inStock);
+    sprintf(query, "INSERT INTO History(id_product, price, status) VALUES (%d, %s, %d)", id, priceString, inStock);
     if (mysql_query(con, query)) {
-        exit(-10);
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(EXIT_FAILURE);
     }
 
     // On ferme la connexion au serveur
     mysql_close(con);
-    //  return ptr;
+    //  return commaPosition;
 
     return EXIT_SUCCESS;
 }
 
-int refreshLog(){
+int refreshLog(int language) {
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
@@ -163,18 +172,22 @@ int refreshLog(){
 
     MYSQL_ROW row;
 
-    unsigned long num_fields = mysql_num_fields(result);
-    unsigned long *lengths;
-
-    struct string buffer;
 
     while ((row = mysql_fetch_row(result))) {
         // La ligne existe sous forme de array donc on itère pour récupérer.
-        if(isInStock(atoi(row[0]), row[1]) == EXIT_SUCCESS){
-            printf("\n Mise à jour du statut de l'objet id:%d réussie", atoi(row[0]));
-        } else{
-            printf("\n Erreur dans la mise à jour du statut de l'objet id:%d", atoi(row[0]));
-        };
+        if (isInStock(atoi(row[0]), row[1]) == EXIT_SUCCESS) {
+            if (language == 1){
+                printf("\n Updated infos on product with id:%d successfully", atoi(row[0]));
+            } else {
+                printf("\n Mise à jour du statut de l'objet id:%d réussie", atoi(row[0]));
+            }
+        } else {
+            if (language == 1){
+                printf("\n Error in updating the infos for product with id:%d", atoi(row[0]));
+            } else {
+                printf("\n Erreur dans la mise à jour du statut de l'objet id:%d", atoi(row[0]));
+            }
+        }
     }
 
     mysql_free_result(result);

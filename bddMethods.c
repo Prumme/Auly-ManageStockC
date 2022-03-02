@@ -177,7 +177,7 @@ void freeProductList(char ***productList, unsigned long* rowCount) {
             free(productList[k][l]);
         }
     }
-    free(productList);
+    // free(productList);
 }
 
 
