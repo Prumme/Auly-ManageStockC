@@ -1,3 +1,0 @@
-C:/Users/33695/Documents/etudes/ESGI/Cours 2eme annee/Projet C/Auly-ManageStockC/cmake-build-debug/CMakeFiles/Projet.dir
-C:/Users/33695/Documents/etudes/ESGI/Cours 2eme annee/Projet C/Auly-ManageStockC/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/33695/Documents/etudes/ESGI/Cours 2eme annee/Projet C/Auly-ManageStockC/cmake-build-debug/CMakeFiles/rebuild_cache.dir
