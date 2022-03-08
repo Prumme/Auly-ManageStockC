@@ -1,0 +1,3 @@
+langue:en
+Valeures acceptées : fr ou en sans espace après les deux points
+

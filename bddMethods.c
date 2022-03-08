@@ -16,7 +16,7 @@ void retrieveOneProductInfo(int id, char **productArray) {
     }
 
     char sql[50];
-    sprintf(sql, "SELECT * FROM Product WHERE id = %d", id); // On insère l'id dans la string query sql
+    sprintf(sql, "SELECT titre, description, url FROM Product WHERE id = %d", id); // On insère l'id dans la string query sql
     // Exécution d'une requête SQL. Exit avec erreur sinon.
     if (mysql_query(con, sql)) {
         finish_with_error(con);
@@ -117,6 +117,7 @@ void freeProductHistory(char ***historyArray, unsigned long* rowCount) {
 }
 
 void retrieveProducts(char ***productList,unsigned long* rowCount) {
+
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
@@ -146,6 +147,7 @@ void retrieveProducts(char ***productList,unsigned long* rowCount) {
 
     unsigned long num_fields = mysql_num_fields(result);
     *rowCount = mysql_num_rows(result);
+
     unsigned long *lengths;
 
     MYSQL_ROW row;
@@ -175,7 +177,7 @@ void freeProductList(char ***productList, unsigned long* rowCount) {
             free(productList[k][l]);
         }
     }
-    free(productList);
+    // free(productList);
 }
 
 

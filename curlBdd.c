@@ -25,10 +25,10 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *destString
     return size * nmemb;
 }
 
-int isInStock(char *URL, struct string bufferString) {
+int isInStock(int id, char *URL) {
     CURL *curl;
     CURLcode res;
-
+    struct string bufferString;
     curl = curl_easy_init();
     if (curl) {
         init_string(&bufferString);
@@ -50,7 +50,7 @@ int isInStock(char *URL, struct string bufferString) {
         if (strstr(bufferString.ptr, "topachat.com") != 0) {//if match found
             stock = verifyStockFromBufferTopachat(bufferString.ptr);
             price = verifyPriceFromBuffer(bufferString.ptr);
-            logHistoryBdd(1, price, stock);
+            logHistoryBdd(id, price, stock);
         }
 
 
@@ -74,12 +74,9 @@ int verifyStockFromBufferTopachat(char *curledHtml) {
             occurrence++;
         }
     }
-    printf("Le mot %s  a été retrouvé dans le buffer %d fois\n", stock, occurrence);
     if (occurrence > 0) {
-        printf("\nIl y avait une occurence !");
         return 1;
     } else {
-        printf("\nIl n'y avait aucune occurence !");
         return 0;
     }
 }
@@ -95,13 +92,11 @@ double verifyPriceFromBuffer(char *curledHtml) {
             if (ptr2) {
                 ptr3 = strstr(ptr2 + 1, "\"");
                 ptrdiff_t bytes = ((char *) ptr3) - ((char *) ptr2 + 1);
-                printf("\n coucou c %td", bytes);
                 memcpy(price, ptr2 + 1, bytes);
             }
         }
     }
 
-    printf("\n\n %s\n\n", price);
     double realPrice = strtod(price, NULL);
     if (realPrice) {
         return realPrice;
@@ -115,7 +110,7 @@ int logHistoryBdd(int id, double price, int inStock) {
 
     if (con == NULL) {
         fprintf(stderr, "%s\n", mysql_error(con));
-        return 0;
+        return EXIT_FAILURE;
     }
 
     // Connexion à la BDD. Variable con (init), host, username, mdp, nom de la bdd, port, jsp et jsp mdrrr
@@ -127,15 +122,75 @@ int logHistoryBdd(int id, double price, int inStock) {
     }
 
     // Exécution d'une requête SQL. Exit avec erreur sinon.
+    char priceString[50];
+    snprintf(priceString, 50, "%f", price);
+
+    char *commaPosition = NULL;
+    while (commaPosition = strpbrk(priceString, ",")) { //find the first dot in input
+        *commaPosition = '.'; //replace the dot with a comma
+    }
+
     char query[2000];
-    sprintf(query, "INSERT INTO History(id_product, price, status) VALUES (%d, %f, %d)", id, price, inStock);
+    sprintf(query, "INSERT INTO History(id_product, price, status) VALUES (%d, %s, %d)", id, priceString, inStock);
     if (mysql_query(con, query)) {
-        exit(-10);
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(EXIT_FAILURE);
     }
 
     // On ferme la connexion au serveur
     mysql_close(con);
-    //  return ptr;
+    //  return commaPosition;
 
-    return 1;
+    return EXIT_SUCCESS;
+}
+
+int refreshLog(int language) {
+    MYSQL *con = mysql_init(NULL);
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(EXIT_FAILURE);
+    }
+
+    if (mysql_real_connect(con, "localhost", "esgi", "esgi",
+                           "test", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    if (mysql_query(con, "SELECT id, url FROM Product")) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(EXIT_FAILURE);
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+
+    if (result == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(EXIT_FAILURE);
+    }
+
+    MYSQL_ROW row;
+
+
+    while ((row = mysql_fetch_row(result))) {
+        // La ligne existe sous forme de array donc on itère pour récupérer.
+        if (isInStock(atoi(row[0]), row[1]) == EXIT_SUCCESS) {
+            if (language == 1){
+                printf("\n Updated infos on product with id:%d successfully", atoi(row[0]));
+            } else {
+                printf("\n Mise à jour du statut de l'objet id:%d réussie", atoi(row[0]));
+            }
+        } else {
+            if (language == 1){
+                printf("\n Error in updating the infos for product with id:%d", atoi(row[0]));
+            } else {
+                printf("\n Erreur dans la mise à jour du statut de l'objet id:%d", atoi(row[0]));
+            }
+        }
+    }
+
+    mysql_free_result(result);
+    mysql_close(con);
+    return EXIT_SUCCESS;
 }

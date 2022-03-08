@@ -26,21 +26,21 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *destString
  * @param bufferString buffer dans lequel on écrit le body
  * @return 0 en cas de bon déroulement.
  */
-int isInStock(char *URL, struct string bufferString);
+int isInStock(int id, char *URL);
 
 /**
  * Permet de vérifier si un produit est en stock sur topachat.com\n
- * @param curledHtml Page curledHtml à parser
+ * @param html Page html à parser
  * @return 1 si le produit est en stock, 0 si le produit n'est pas immédiatement en stock
  */
-int verifyStockFromBufferTopachat(char *curledHtml);
+int verifyStockFromBufferTopachat(char *html);
 
 /**
  * Permet de récupérer le prix d'un produit en stock sur topachat.com\n
- * @param curledHtml Page curledHtml à parser
+ * @param html Page html à parser
  * @return le prix du produit
  */
-double verifyPriceFromBuffer(char *curledHtml);
+double verifyPriceFromBuffer(char *html);
 
 /**
  * Permet d'enregistrer en BDD le statut d'un produit
@@ -50,5 +50,7 @@ double verifyPriceFromBuffer(char *curledHtml);
  * @return
  */
 int logHistoryBdd(int id, double price, int inStock);
+
+int refreshLog();
 
 #endif //PROJET_CURLBDD_H
